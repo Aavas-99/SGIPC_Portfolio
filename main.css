@@ -1,0 +1,137 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* NAVBAR */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background: #0f172a;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    width: 40px;
+    margin-right: 10px;
+}
+
+nav a {
+    margin-left: 20px;
+    color: white;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: #38bdf8;
+}
+
+.login:hover {
+    background-color: aqua;
+}
+
+/* HERO */
+.hero {
+    height: 90vh;
+    background: linear-gradient(to right, #020617, #0f172a);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    margin-bottom: 20px;
+}
+
+.hero button {
+    padding: 10px 20px;
+    background: #38bdf8;
+    border: none;
+    cursor: pointer;
+}
+
+/* ABOUT */
+.about {
+    padding: 60px;
+    text-align: center;
+}
+
+/* FEATURES */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 40px;
+    background: #f1f5f9;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+/* TEAM */
+.committee {
+    padding: 60px;
+    text-align: center;
+}
+
+.members {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.member {
+    background: #e2e8f0;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* EVENTS */
+.events {
+    padding: 60px;
+    text-align: center;
+    background: #f8fafc;
+}
+
+/* CONTACT */
+.contact {
+    padding: 60px;
+    text-align: center;
+}
+
+.contact button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #0ea5e9;
+    border: none;
+    color: white;
+}
+
+/* FOOTER */
+footer {
+    background: #020617;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
