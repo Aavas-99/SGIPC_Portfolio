@@ -10,7 +10,7 @@
 <!-- Navbar section -->
 <header>
     <div class="logo">
-        <img src="SGIPC.jpg" alt="SGIPC Logo">
+        <img src="SGIPC.png" alt="SGIPC Logo" style="transform: scale(1.5);">
         <h2>SGIPC</h2>
     </div>
     <nav>
@@ -58,25 +58,6 @@
     </div>
 </section>
 
-<!-- Committee Section -->
-<section id="committee" class="committee">
-    <h2>SGIPC Committee</h2><br>
-    <div class="members">
-        <div class="member">
-            <h4>Name</h4>
-            <p>President</p>
-        </div>
-        <div class="member">
-            <h4>Name</h4>
-            <p>Mentor</p>
-        </div>
-        <div class="member">
-            <h4>Name</h4>
-            <p>Coordinator</p>
-        </div>
-    </div>
-</section>
-
 <!-- Events Section -->
 <section id="events" class="events">
     <h2>Events</h2><br>
@@ -90,8 +71,11 @@
 
 <!-- Footer Section -->
 <footer>
-    <p>&copy 2026 SGIPC | Built for programmers</p>
+    <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
 </footer>
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>

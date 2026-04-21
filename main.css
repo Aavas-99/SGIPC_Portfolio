@@ -89,12 +89,6 @@ nav a:hover {
     border-radius: 10px;
 }
 
-/* TEAM */
-.committee {
-    padding: 60px;
-    text-align: center;
-}
-
 .members {
     display: flex;
     justify-content: center;
