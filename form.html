@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply | SGIPC</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="form.css">
+</head>
+<body>
+
+<header>
+    <a class="logo" href="main.html">
+        <img src="SGIPC.png" alt="SGIPC Logo">
+        <h2>SGIPC</h2>
+    </a>
+    <nav>
+        <a href="main.html#home">Home</a>
+        <a href="main.html#about">About</a>
+        <a href="committee.html">Committee</a>
+        <a href="main.html#events">Events</a>
+        <a href="main.html#contact">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <div class="form-card">
+
+        <div class="form-header">
+            <h1>Apply to Join SGIPC</h1>
+            <p class="sub">Fill in your details below. Your application will be reviewed by our admin team before approval.</p>
+        </div>
+
+        <div class="success-box" id="successBox">
+            <div class="success-icon">✓</div>
+            <h3>Application Submitted!</h3>
+            <p>Your application is under review. You'll be notified once an admin approves it.</p>
+            <a href="main.html" class="btn btn-back">Back to Home</a>
+        </div>
+
+        <form id="applyForm" onsubmit="handleSubmit(event)" novalidate>
+
+            <div class="section-title personal">Personal Information</div>
+
+            <div class="two-col">
+                <div class="field">
+                    <label>Full Name <span class="req">*</span></label>
+                    <input type="text" id="fullname" placeholder="e.g. Aavas Roy" required>
+                    <div class="err" id="err-fullname">Full name is required.</div>
+                </div>
+                <div class="field">
+                    <label>Roll Number <span class="req">*</span></label>
+                    <input type="text" id="roll" placeholder="e.g. 2207099" required>
+                    <div class="err" id="err-roll">Roll number is required.</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="field">
+                    <label>Department <span class="req">*</span></label>
+                    <div class="select-wrap">
+                        <select id="dept" required>
+                            <option value="" disabled selected>Select department</option>
+                            <option>CSE</option>
+                            <option>EEE</option>
+                            <option>CE</option>
+                            <option>ME</option>
+                            <option>ECE</option>
+                            <option>IEM</option>
+                            <option>ESE</option>
+                            <option>BME</option>
+                            <option>URP</option>
+                            <option>LE</option>
+                            <option>TE</option>
+                            <option>BECM</option>
+                            <option>ARCH</option>
+                            <option>MSE</option>
+                            <option>CHE</option>
+                            <option>MTE</option>
+                        </select>
+                        <span class="select-arrow">▾</span>
+                    </div>
+                    <div class="err" id="err-dept">Please select a department.</div>
+                </div>
+                <div class="field">
+                    <label>Batch <span class="req">*</span></label>
+                    <div class="select-wrap">
+                        <select id="batch" required>
+                            <option value="" disabled selected>Select batch</option>
+                            <option>2k20</option>
+                            <option>2k21</option>
+                            <option>2k22</option>
+                            <option>2k23</option>
+                            <option>2k24</option>
+                        </select>
+                        <span class="select-arrow">▾</span>
+                    </div>
+                    <div class="err" id="err-batch">Please select a batch.</div>
+                </div>
+            </div>
+
+            <div class="handles-group">
+            <div class="section-title handles">Competitive Programming Handles <span class="optional-tag">optional</span></div>
+
+            <div class="two-col">
+                <div class="field">
+                    <label>
+                        Codeforces Handle
+                    </label>
+                    <input type="text" id="cf" placeholder="cf_handle">
+                </div>
+                <div class="field">
+                    <label>
+                        AtCoder Handle
+                    </label>
+                    <input type="text" id="ac" placeholder="atcoder_handle">
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="field">
+                    <label>
+                        CodeChef Handle
+                    </label>
+                    <input type="text" id="cc" placeholder="codechef_handle">
+                </div>
+                <div class="field">
+                    <label>
+                        LeetCode Handle
+                    </label>
+                    <input type="text" id="lc" placeholder="leetcode_handle">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>VJudge Handle</label>
+                <input type="text" id="vj" placeholder="vjudge_handle">
+            </div>
+
+            </div>
+
+            <div class="statement-group">
+            <div class="section-title statement">Statement of Interest</div>
+
+            <div class="field">
+                <label>Why do you want to join SGIPC? <span class="req">*</span></label>
+                <textarea id="reason" rows="5" placeholder="Tell us about your programming background, goals, and why you want to be part of SGIPC" required></textarea>
+                <div class="char-count"><span id="charCount">0</span> / 500 characters</div>
+                <div class="err" id="err-reason">Please tell us why you want to join.</div>
+            </div>
+
+            </div>
+
+            <div class="notice">
+                <span class="notice-icon">&#x1F6C8</span>
+                Your application will be reviewed by the SGIPC admin team. You will be notified of the decision via your university email or roll number.
+            </div>
+
+            <button type="submit" class="btn btn-submit">Submit Application</button>
+
+        </form>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
+</footer>
+
+<script src="form.js"></script>
+
+</body>
+</html>
