@@ -19,6 +19,7 @@
         <a href="#about">About</a>
         <a href="committee.html">Committee</a>
         <a href="#events">Events</a>
+        <a href="#achievements">Achievements</a>
         <a href="#join">Join</a>
         <a href="#contact">Contact</a>
     </nav>
@@ -66,6 +67,93 @@
     <p>Weekly contests, workshops, and ICPC preparation sessions.</p>
 </section>
 
+<!-- Achievement Section -->
+<section id="achievements" class="achievements">
+    <div class="ach-header">
+        <h2>Achievements</h2>
+        <p>Proud moments from our competitive programming journey</p>
+    </div>
+ 
+    <div class="ach-carousel">
+        <button class="ach-btn" id="achPrev">&#10094;</button>
+ 
+        <div class="ach-window">
+            <div class="ach-track" id="achTrack">
+ 
+                <div class="ach-card">
+                    <div class="ach-img-wrap">
+                        <img src="buet_iupc_26.jpg" alt="BUET IUPC 2026" class="ach-img" onerror="this.style.display='none';this.parentElement.classList.add('no-img')">
+                    </div>
+                    <div class="ach-body">
+                        <div class="ach-contest">BUET IUPC 2026</div>
+                        <div class="ach-result">Ranked 4th Place</div>
+                        <div class="ach-team-name">KUET_Potol</div>
+                        <div class="ach-members">
+                            <span>Khadimul Islam Mahi</span>
+                            <span>Dipra Datta</span>
+                            <span>Md Abu Daud Sharif</span>
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="ach-card">
+                    <div class="ach-img-wrap">
+                        <img src="icpc_reg_25.jpg" alt="ICPC Regional 2025" class="ach-img" onerror="this.style.display='none';this.parentElement.classList.add('no-img')">
+                    </div>
+                    <div class="ach-body">
+                        <div class="ach-contest">ICPC Regional 2025</div>
+                        <div class="ach-result">Ranked 19th Place</div>
+                        <div class="ach-team-name">KUET_Potol</div>
+                        <div class="ach-members">
+                            <span>Khadimul Islam Mahi</span>
+                            <span>Dipra Datta</span>
+                            <span>Md Abu Daud Sharif</span>
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="ach-card">
+                    <div class="ach-img-wrap">
+                        <img src="nwu_cse_fest_25.jpg" alt="ICPC World Finals 2024" class="ach-img" onerror="this.style.display='none';this.parentElement.classList.add('no-img')">
+                    </div>
+                    <div class="ach-body">
+                        <div class="ach-contest">NWU CSE Fest 2025</div>
+                        <div class="ach-result">Champion</div>
+                        <div class="ach-team-name">KUET_Potol</div>
+                        <div class="ach-members">
+                            <span>Khadimul Islam Mahi</span>
+                            <span>Dipra Datta</span>
+                            <span>Md Abu Daud Sharif</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ach-card">
+                    <div class="ach-img-wrap">
+                        <img src="icpc_wf_24.jpg" alt="NWU CSE Fest 2025" class="ach-img" onerror="this.style.display='none';this.parentElement.classList.add('no-img')">
+                    </div>
+                    <div class="ach-body">
+                        <div class="ach-contest">ICPC World Finals 2024</div>
+                        <div class="ach-result">Ranked 115th Place</div>
+                        <div class="ach-team-name">KUET_Effervescent</div>
+                        <div class="ach-members">
+                            <span>Arnob Sarker</span>
+                            <span>Sharif Minhazul Islam</span>
+                            <span>Md Mehrab Hossain Opi</span>
+                        </div>
+                    </div>
+                </div>
+ 
+            </div>
+        </div>
+ 
+        <button class="ach-btn" id="achNext">&#10095;</button>
+    </div>
+ 
+    <!-- Dots -->
+    <div class="ach-dots" id="achDots"></div>
+</section>
+
 <!-- Become a Member Section -->
 <section id="join" class="join">
     <div class="join-inner">
@@ -95,9 +183,7 @@
 <footer>
     <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
 </footer>
-<script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+<script src="main.js"></script>
 
 </body>
 </html>
