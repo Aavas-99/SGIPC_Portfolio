@@ -36,7 +36,7 @@ function validateField(id) {
     return true;
 }
 
-['fullname', 'roll', 'dept', 'batch', 'reason'].forEach(function(id) {
+['fullname', 'email', 'roll', 'dept', 'batch', 'reason'].forEach(function(id) {
     document.getElementById(id).addEventListener('input', function() {
         hideError(id);
     });
@@ -45,12 +45,25 @@ function validateField(id) {
     });
 });
 
+// Email-specific validator
+function validateEmailField() {
+    var val = document.getElementById('email').value.trim();
+    var re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val || !re.test(val)) {
+        showError('email');
+        return false;
+    }
+    hideError('email');
+    return true;
+}
+
 
 function handleSubmit(e) {
     e.preventDefault();
     var valid = true;
 
     if (!validateField('fullname')) valid = false;
+    if (!validateEmailField())      valid = false;
     if (!validateField('roll'))     valid = false;
     if (!validateField('dept'))     valid = false;
     if (!validateField('batch'))    valid = false;
@@ -63,6 +76,7 @@ function handleSubmit(e) {
         submittedAt: new Date().toISOString(),
         personal: {
             fullname: document.getElementById('fullname').value.trim(),
+            email:    document.getElementById('email').value.trim(),
             roll:     document.getElementById('roll').value.trim(),
             dept:     document.getElementById('dept').value,
             batch:    document.getElementById('batch').value

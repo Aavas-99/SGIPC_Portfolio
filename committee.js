@@ -109,6 +109,8 @@ document.getElementById('prev').onclick = function()
     startAuto();
 };
 
+document.getElementById('year').textContent = new Date().getFullYear();
+
 
 // Start the auto rotation when the page loads
 startAuto();
