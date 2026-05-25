@@ -1,0 +1,159 @@
+@{
+    // Try to get email from Session first (current session)
+    var userEmail = Session["UserEmail"]?.ToString() ?? "";
+    
+    // If not in session but user is authenticated, extract from FormsAuthentication ticket
+    if (string.IsNullOrEmpty(userEmail) && User.Identity.IsAuthenticated)
+    {
+        userEmail = User.Identity.Name ?? "";
+        // Restore to session for this session
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Session["UserEmail"] = userEmail;
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SGIPC</title>
+    <link rel="icon" type="image/jpg" href='@Url.Content("~/Content/Portfolio/images/SGIPC.jpg")'>
+</head>
+<body>
+
+<!-- Navbar section -->
+<header>
+    <div class="logo">
+        <img src='@Url.Content("~/Content/Portfolio/images/SGIPC.png")' alt="SGIPC Logo">
+        <h2>SGIPC</h2>
+    </div>
+    <nav>
+        <a href='@Url.Action("Index", "Portfolio")#home'>Home</a>
+        <a href='@Url.Action("Index", "Portfolio")#about'>About</a>
+        <a href='@Url.Action("Committee", "Portfolio")'>Committee</a>
+        <a href='@Url.Action("Index", "Portfolio")#events'>Events</a>
+        <a href='@Url.Action("Index", "Portfolio")#achievements'>Achievements</a>
+        <a href='@Url.Action("Index", "Portfolio")#join'>Join</a>
+        <a href='@Url.Action("Index", "Portfolio")#contact'>Contact</a>
+        @if (!string.IsNullOrEmpty(userEmail))
+        {
+            <div class="user-menu-dropdown">
+                <button class="user-menu-btn">
+                    <svg class="user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="user-name">@userEmail.Split('@')[0]</span>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">@userEmail</div>
+                    <a href='@Url.Action("Logout", "Portfolio")' class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        }
+    </nav>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+    @RenderBody()
+</main>
+
+<!-- Footer Section -->
+<footer>
+    <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
+</footer>
+
+<style>
+    /* User Menu Dropdown Styling */
+    .user-menu-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .user-menu-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .user-menu-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .user-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        min-width: 240px;
+        margin-top: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .user-menu-dropdown:hover .dropdown-menu,
+    .user-menu-dropdown.active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        font-size: 13px;
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 10px 16px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f5f5f5;
+        color: #667eea;
+    }
+
+    .dropdown-item:last-child:hover {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+</style>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

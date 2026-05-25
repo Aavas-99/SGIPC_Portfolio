@@ -1,0 +1,979 @@
+@{
+    ViewBag.Title = "Committee";
+    Layout = null;
+    var userEmail = Session["UserEmail"]?.ToString() ?? "";
+    if (string.IsNullOrEmpty(userEmail) && User.Identity.IsAuthenticated)
+    {
+        userEmail = User.Identity.Name ?? "";
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Session["UserEmail"] = userEmail;
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SGIPC</title>
+    <link rel="icon" type="image/jpg" href='@Url.Content("~/Content/Portfolio/images/SGIPC.jpg")'>
+    <link rel="stylesheet" href='@Url.Content("~/Content/Portfolio/committee.css")'>
+</head>
+<body>
+
+<!-- Navbar section -->
+<header>
+    <div class="logo">
+        <img src='@Url.Content("~/Content/Portfolio/images/SGIPC.png")' alt="SGIPC Logo">
+        <h2>SGIPC</h2>
+    </div>
+    <nav>
+        <a href='@Url.Action("Index", "Portfolio")#home'>Home</a>
+        <a href='@Url.Action("Index", "Portfolio")#about'>About</a>
+        <a href='@Url.Action("Committee", "Portfolio")'>Committee</a>
+        <a href='@Url.Action("Index", "Portfolio")#events'>Events</a>
+        <a href='@Url.Action("Index", "Portfolio")#achievements'>Achievements</a>
+        <a href='@Url.Action("Index", "Portfolio")#join'>Join</a>
+        <a href='@Url.Action("Index", "Portfolio")#contact'>Contact</a>
+        @if (!string.IsNullOrEmpty(userEmail))
+        {
+            <div class="user-menu-dropdown">
+                <button class="user-menu-btn">
+                    <svg class="user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="user-name">@userEmail.Split('@')[0]</span>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">@userEmail</div>
+                    <a href='@Url.Action("Logout", "Portfolio")' class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        }
+    </nav>
+</header>
+
+<style>
+    /* Header logo styling - override page-title logo */
+    header .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+    }
+
+    header .logo img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+        object-fit: contain;
+    }
+
+    header .logo h2 {
+        margin: 0;
+        color: white;
+        font-size: 18px;
+    }
+
+    /* User Menu Dropdown Styling */
+    .user-menu-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .user-menu-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .user-menu-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .user-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        min-width: 240px;
+        margin-top: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .user-menu-dropdown:hover .dropdown-menu,
+    .user-menu-dropdown.active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        font-size: 13px;
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 10px 16px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f5f5f5;
+        color: #667eea;
+    }
+
+    .dropdown-item:last-child:hover {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+</style>
+
+    <br />
+
+<div class="page-title">
+    <div class="logo">{ }</div>
+    <h1>SGIPC</h1>
+    <p class="subtitle">Organizing Committee of 2023</p>
+    <p class="subtitle">Special Group Interested in Programming Contest (SGIPC)</p>
+    <p class="subtitle small">Department of Computer Science and Engineering</p>
+    <p class="subtitle small">Khulna University of Engineering &amp; Technology</p>
+</div>
+<section class="leaders">
+    <h2>Core Leaders</h2>
+    <div class="carousel">
+        <button id="prev">&#10094;</button>
+        <div class="carousel-window">
+            <div class="carousel-track" id="track">
+
+                <div class="leader-card">
+                    <h3>President</h3>
+                    <p class="lname">Niloy Das</p>
+                    <p class="linfo">Roll: 2007086</p>
+                    <p class="linfo">Dept: CSE</p>
+                    <p class="linfo">Batch: 2k20</p>
+                </div>
+
+                <div class="leader-card">
+                    <h3>Vice President</h3>
+                    <p class="lname">Md. Tanjimul Hasan</p>
+                    <p class="linfo">Roll: 2007081</p>
+                    <p class="linfo">Dept: CSE</p>
+                    <p class="linfo">Batch: 2k20</p>
+                </div>
+
+                <div class="leader-card">
+                    <h3>Vice President</h3>
+                    <p class="lname">Shah Md Khalil Ullah</p>
+                    <p class="linfo">Roll: 2007090</p>
+                    <p class="linfo">Dept: CSE</p>
+                    <p class="linfo">Batch: 2k20</p>
+                </div>
+
+                <div class="leader-card">
+                    <h3>General Secretary</h3>
+                    <p class="lname">Khadimul Islam Mahi</p>
+                    <p class="linfo">Roll: 2107076</p>
+                    <p class="linfo">Dept: CSE</p>
+                    <p class="linfo">Batch: 2k21</p>
+                </div>
+
+            </div>
+        </div>
+        <button id="next">&#10095;</button>
+    </div>
+    <div class="dots" id="dots"></div>
+</section>
+
+<section class="committee">
+    <h2>Full Committee</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>Assistant General Secretary</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Mohammad Abu Daud Sharif</p>
+                    <p>Roll: 2107002</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Kazi Rifat Al Muin</p>
+                    <p>Roll: 2107042</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Treasurer</h3>
+            <div class="members">
+                <div class="person">
+                    <p class="name">Md Umar Faruk</p>
+                    <p>Roll: 2007016</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Organizing Secretary</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Amit Kairy</p>
+                    <p>Roll: 2007069</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Ashrarul Haque Sifat</p>
+                    <p>Roll: 2007082</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assistant Organizing Secretary</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Siam Arif</p>
+                    <p>Roll: 2107062</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Siyam Khan</p>
+                    <p>Roll: 2107120</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Abdullah Al Saif</p>
+                    <p>Roll: 2107017</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Batch Representative (2k21)</h3>
+            <div class="members">
+                <div class="person">
+                    <p class="name">Saleque Bin Hossain</p>
+                    <p>Roll: 2107026</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Batch Representative (2k22)</h3>
+            <div class="members">
+                <div class="person">
+                    <p class="name">Alok Baul (Turjo)</p>
+                    <p>Roll: 2207098</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Batch Representative (2k23)</h3>
+            <div class="members">
+                <div class="person">
+                    <p class="name">Md Farhan Ishraq</p>
+                    <p>Roll: 2307012</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Performance Analyzer</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Sujoy Sadhu</p>
+                    <p>Roll: 2007019</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Asif Rahman</p>
+                    <p>Roll: 2007044</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md. Hafizur Rahman</p>
+                    <p>Roll: 2007080</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rahul Sheikh</p>
+                    <p>Roll: 2107063</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assistant Performance Analyzer</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Torikul Islam</p>
+                    <p>Roll: 2107048</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Nayeem</p>
+                    <p>Roll: 2107050</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Jahid Hasan</p>
+                    <p>Roll: 2107054</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Senior Mentor for Boys</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Md Babla Islam</p>
+                    <p>Roll: 2007045</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md. Raihan Hossain Rakib</p>
+                    <p>Roll: 2007005</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rauful Islam Tamim</p>
+                    <p>Roll: 2007009</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Junior Mentor for Boys</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Farid Ahmed</p>
+                    <p>Roll: 2107043</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Mosaddek Ali</p>
+                    <p>Roll: 2107027</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Senior Mentor for Girls</h3>
+            <div class="members">
+                <div class="person">
+                    <p class="name">Sumaiya Rahim</p>
+                    <p>Roll: 2007102</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Junior Mentor for Girls</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Ishrat Binte Ahmed</p>
+                    <p>Roll: 2107019</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ayesha Mehereen</p>
+                    <p>Roll: 2107039</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Shormi Ghosh</p>
+                    <p>Roll: 2107109</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Contest Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Dipra Datta</p>
+                    <p>Roll: 2107070</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ankon Roy</p>
+                    <p>Roll: 2107113</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assistant Contest Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Sk. Nazmus Salehin Nirob</p>
+                    <p>Roll: 2207045</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Nurul Absar Shadik</p>
+                    <p>Roll: 2207065</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Sazzad Ahmed</p>
+                    <p>Roll: 2207026</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">MD. Shahariar Emon Saikat</p>
+                    <p>Roll: 2207002</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Workshop Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Raihan Arefin</p>
+                    <p>Roll: 2107065</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Naqibul Haque</p>
+                    <p>Roll: 2107077</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Tariful Islam Jony</p>
+                    <p>Roll: 2107119</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assistant Workshop Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Shah Makhdum Sharif</p>
+                    <p>Roll: 2207089</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Taki Tahmid Saad</p>
+                    <p>Roll: 2207022</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ullas Biswas Shontu</p>
+                    <p>Roll: 2207086</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Alif Al Ahad</p>
+                    <p>Roll: 2207016</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Editorial Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Abir Rahman</p>
+                    <p>Roll: 2007026</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Ahsanul Islam Emon</p>
+                    <p>Roll: 2107115</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Assistant Editorial Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Md Tahmid Islam</p>
+                    <p>Roll: 2107107</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Rubayet Nabil</p>
+                    <p>Roll: 2107073</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Himel</p>
+                    <p>Roll: 2107032</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Web Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Md. Faysal Mahmud</p>
+                    <p>Roll: 2007068</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Iqbal Mahmud</p>
+                    <p>Roll: 2007094</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Tasmir Hossain Zihad</p>
+                    <p>Roll: 2107071</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Outreach Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">S.M. Sadikuzzaman Abir</p>
+                    <p>Roll: 2007049</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Farhan Miraz Shihab</p>
+                    <p>Roll: 2007064</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ariyan Aftab Spondon</p>
+                    <p>Roll: 2107045</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Shakhoyat Rahman Shujon</p>
+                    <p>Roll: 2107104</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Design Manager</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Arka Braja Prasad Nath</p>
+                    <p>Roll: 2107055</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Tawhidul Hasan</p>
+                    <p>Roll: 2107004</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Campaign Editor</h3>
+            <div class="members two-col">
+                <div class="person">
+                    <p class="name">Ekramul Alam Apan</p>
+                    <p>Roll: 2007001</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k20</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rezuan Mustafa Hasan</p>
+                    <p>Roll: 2107075</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+                <div class="person">
+                    <p class="name">Newaz Mohammad Hamim</p>
+                    <p>Roll: 2107106</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k21</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card full-width">
+            <h3>Associative Member</h3>
+            <div class="members three-col">
+                <div class="person">
+                    <p class="name">MD Istiaque Ahmed Asif</p>
+                    <p>Roll: 2207009</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Niyamul Kabir Sajid</p>
+                    <p>Roll: 2207017</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Saleh Sadid Mir</p>
+                    <p>Roll: 2207024</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Utsa Roy</p>
+                    <p>Roll: 2207027</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Mahmuda Rahaman</p>
+                    <p>Roll: 2207032</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rupam Bose</p>
+                    <p>Roll: 2207038</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md. Shomik Shahriar</p>
+                    <p>Roll: 2207041</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Shahira Alima</p>
+                    <p>Roll: 2207043</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Safwan Salehin</p>
+                    <p>Roll: 2207044</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Priom Sarkar</p>
+                    <p>Roll: 2207048</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Abir Hasan Arko</p>
+                    <p>Roll: 2207053</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Mehrab Hossen Sakal</p>
+                    <p>Roll: 2207066</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Shafiul Islam Sourav</p>
+                    <p>Roll: 2207068</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Fatihatun Nazat</p>
+                    <p>Roll: 2207070</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md. Abu Sufian</p>
+                    <p>Roll: 2207072</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md. Torikul Islam</p>
+                    <p>Roll: 2207078</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">MD Feroz Shah</p>
+                    <p>Roll: 2207087</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rahi Sadad Ruhan</p>
+                    <p>Roll: 2207088</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Mutiur Rahman</p>
+                    <p>Roll: 2207097</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Aavas Roy</p>
+                    <p>Roll: 2207099</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Tahmid Chowdhury Mahin</p>
+                    <p>Roll: 2207109</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Nishad Uzzaman</p>
+                    <p>Roll: 2207004</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k22</p>
+                </div>
+                <div class="person">
+                    <p class="name">Tasnimul Hasan Rahat</p>
+                    <p>Roll: 2303028</p>
+                    <p>Dept: EEE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Samun Sadab Wafi</p>
+                    <p>Roll: 2307003</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Sanjidur Rahman Prantor</p>
+                    <p>Roll: 2307006</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Farhan Ishraq</p>
+                    <p>Roll: 2307012</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Arifin Ikram</p>
+                    <p>Roll: 2307027</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Farjamul Islam Nishat</p>
+                    <p>Roll: 2307028</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Aditya Banik</p>
+                    <p>Roll: 2307030</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Mohosin Alam</p>
+                    <p>Roll: 2307033</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Maruf Hasan Ratul</p>
+                    <p>Roll: 2307037</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Souvik Kumar Kundu</p>
+                    <p>Roll: 2307048</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Afra Yasmin</p>
+                    <p>Roll: 2307052</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Masud Mehedi Rohan</p>
+                    <p>Roll: 2307054</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ragib Shahriar Arnob</p>
+                    <p>Roll: 2307062</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Akibur Rahman</p>
+                    <p>Roll: 2307071</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Khalid Bin Atik</p>
+                    <p>Roll: 2307073</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rahanuma Rashid</p>
+                    <p>Roll: 2307089</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Ahmed Morsalin Shuvo</p>
+                    <p>Roll: 2307106</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Md Ashraful Islam</p>
+                    <p>Roll: 2307108</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Rafid Reza</p>
+                    <p>Roll: 2307120</p>
+                    <p>Dept: CSE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+                <div class="person">
+                    <p class="name">Al Fahad</p>
+                    <p>Roll: 2309029</p>
+                    <p>Dept: ECE</p>
+                    <p>Batch: 2k23</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Footer Section -->
+<footer>
+    <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
+</footer>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script src="@Url.Content("~/Scripts/Portfolio/committee.js")"></script>
+
+</body>
+</html>

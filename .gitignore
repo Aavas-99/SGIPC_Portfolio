@@ -1,0 +1,76 @@
+# Visual Studio temporary files, build results, and user-specific files
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.cache
+*.dbmdl
+*.log
+*.vsix
+*.tmp
+*.tmp_proj
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.ipdb
+*.iobj
+*.cache
+*.manifest
+*.appx
+*.appxrecipe
+*.appxsym
+*.e2e
+
+# Build results
+[Bb]in/
+[Oo]bj/
+*/[Bb]in/
+*/[Oo]bj/
+
+# NuGet package folders
+packages/
+*.nupkg
+# The packages folder can be kept locally but should not be committed for this repo
+
+# Rider/IDE files
+.idea/
+*.sln.iml
+
+# ASP.NET temporary files
+*.publishsettings
+*_ReSharper.*
+_ReSharper*/
+*.DotSettings.user
+
+# Node modules (if any)
+node_modules/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# User-specific files
+*.log
+*.bak
+*.orig
+*.swp
+
+# Package restore related
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Ignore package cache directories
+*.nuget/packages/
+
+# Ignore generated VS Code workspace data if present
+.vscode/

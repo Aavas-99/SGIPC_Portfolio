@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGIPC</title>
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 40px;
+            background: #020617;
+            border-bottom: 1px solid #1e293b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+            .logo img {
+                height: 36px;
+            }
+
+            .logo h2 {
+                font-size: 18px;
+                color: #38bdf8;
+                margin: 0;
+                letter-spacing: 0.04em;
+            }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+            .nav-links a {
+                color: #64748b;
+                text-decoration: none;
+                font-size: 14px;
+                padding: 6px 12px;
+                transition: color .2s;
+            }
+
+                .nav-links a:hover {
+                    color: #e2e8f0;
+                }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-user {
+            font-size: 13px;
+            color: #38bdf8;
+        }
+
+        .btn-nav {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background .2s;
+        }
+
+        .btn-signin {
+            background: transparent;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+
+            .btn-signin:hover {
+                background: #1e293b;
+                color: #e2e8f0;
+            }
+
+        .btn-signup {
+            background: #7c3aed;
+            color: white;
+        }
+
+            .btn-signup:hover {
+                background: #6d28d9;
+                color: white;
+            }
+
+        .btn-logout {
+            background: #1e293b;
+            color: #f87171;
+            border: 1px solid #334155;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+            .btn-logout:hover {
+                background: #334155;
+            }
+
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #020617;
+            border-top: 1px solid #1e293b;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- Logo -->
+        <a href="@Url.Action("Index", "Home")" class="logo">
+            <img src="@Url.Content("~/Content/SGIPC.png")" alt="SGIPC Logo" />
+            <h2>SGIPC</h2>
+        </a>
+
+        <!-- Nav links -->
+        <ul class="nav-links">
+            <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("About", "Index", "Home", new { area = "", id = "about" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Committee", "Index", "Committee", new { area = "" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Events", "Index", "Home", new { area = "", id = "events" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Join", "Index", "Home", new { area = "", id = "join" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+        </ul>
+
+        <!-- Auth buttons -->
+        <div class="nav-right">
+            @if (Request.IsAuthenticated)
+            {
+                <span class="nav-user">@User.Identity.Name</span>
+                <form action="/Account/Logout" method="post" style="display:inline; margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Request.RawUrl" />
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            }
+            else
+            {
+                @Html.ActionLink("Sign In", "SignIn", "Account", new { area = "" }, new { @class = "btn-nav btn-signin" })
+                @Html.ActionLink("Sign Up", "SignUp", "Account", new { area = "" }, new { @class = "btn-nav btn-signup" })
+            }
+        </div>
+    </header>
+
+    <div class="container body-content">
+        @RenderBody()
+    </div>
+
+    <footer>
+        <p>&copy; @DateTime.Now.Year SGIPC | Built for programmers</p>
+    </footer>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
