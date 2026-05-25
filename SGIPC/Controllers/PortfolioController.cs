@@ -162,6 +162,57 @@ namespace SGIPC.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Form(ApplicationFormViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    using (SqlConnection conn = DbHelper.GetConnection())
+                    {
+                        conn.Open();
+
+                        // Insert application form into database
+                        string insertQuery = @"INSERT INTO dbo.ApplicationForm 
+                            (FullName, Email, RollNumber, Department, Batch, 
+                            CodeForcesHandle, AtCoderHandle, CodeChefHandle, LeetCodeHandle, VJudgeHandle, 
+                            ReasonForJoin, Status, SubmittedAt) 
+                            VALUES 
+                            (@FullName, @Email, @RollNumber, @Department, @Batch, 
+                            @CodeForcesHandle, @AtCoderHandle, @CodeChefHandle, @LeetCodeHandle, @VJudgeHandle, 
+                            @ReasonForJoin, 'Pending', GETDATE())";
+
+                        SqlCommand cmd = new SqlCommand(insertQuery, conn);
+                        cmd.Parameters.AddWithValue("@FullName", model.FullName ?? "");
+                        cmd.Parameters.AddWithValue("@Email", model.Email ?? "");
+                        cmd.Parameters.AddWithValue("@RollNumber", model.RollNumber ?? "");
+                        cmd.Parameters.AddWithValue("@Department", model.Department ?? "");
+                        cmd.Parameters.AddWithValue("@Batch", model.Batch ?? "");
+                        cmd.Parameters.AddWithValue("@CodeForcesHandle", model.CodeForcesHandle ?? "");
+                        cmd.Parameters.AddWithValue("@AtCoderHandle", model.AtCoderHandle ?? "");
+                        cmd.Parameters.AddWithValue("@CodeChefHandle", model.CodeChefHandle ?? "");
+                        cmd.Parameters.AddWithValue("@LeetCodeHandle", model.LeetCodeHandle ?? "");
+                        cmd.Parameters.AddWithValue("@VJudgeHandle", model.VJudgeHandle ?? "");
+                        cmd.Parameters.AddWithValue("@ReasonForJoin", model.ReasonForJoin ?? "");
+
+                        cmd.ExecuteNonQuery();
+
+                        // Set success message and redirect
+                        TempData["SuccessMessage"] = "Application submitted successfully! Your application is under review. You'll be notified once the admin team reviews it.";
+                        return RedirectToAction("Index");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while submitting your application: " + ex.Message);
+                }
+            }
+
+            return View(model);
+        }
+
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();

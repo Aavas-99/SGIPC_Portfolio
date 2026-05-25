@@ -1,3 +1,4 @@
+@model SGIPC.Models.ApplicationFormViewModel
 @{
     ViewBag.Title = "Apply";
     Layout = "~/Views/Portfolio/_Layout.cshtml";
@@ -12,140 +13,123 @@
         <p class="sub">Fill in your details below. Your application will be reviewed by our admin team before approval.</p>
     </div>
 
-    <div class="success-box" id="successBox">
-        <div class="success-icon">✓</div>
-        <h3>Application Submitted!</h3>
-        <p>Your application is under review. You'll be notified once an admin approves it.</p>
-        <a href='@Url.Action("Index", "Portfolio")' class="btn btn-back">Back to Home</a>
-    </div>
+    @using (Html.BeginForm("Form", "Portfolio", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
 
-    <form id="applyForm" onsubmit="handleSubmit(event)" novalidate>
-
-            <div class="section-title personal">Personal Information</div>
-
-            <div class="two-col">
-                <div class="field">
-                    <label>Full Name <span class="req">*</span></label>
-                    <input type="text" id="fullname" placeholder="e.g. Aavas Roy" required>
-                    <div class="err" id="err-fullname">Full name is required.</div>
-                </div>
-                <div class="field">
-                    <label>Roll Number <span class="req">*</span></label>
-                    <input type="text" id="roll" placeholder="e.g. 2207099" required>
-                    <div class="err" id="err-roll">Roll number is required.</div>
-                </div>
+        if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Count > 0)
+        {
+            <div class="validation-summary-errors">
+                <h2>Please fix the following errors:</h2>
+                @Html.ValidationSummary(false)
             </div>
+        }
 
+        <div class="section-title personal">Personal Information</div>
+
+        <div class="two-col">
             <div class="field">
-                    <label>Email Address <span class="req">*</span></label>
-                    <input type="email" id="email" placeholder="e.g. Student Email" required>
-                    <div class="err" id="err-email">A valid email address is required.</div>
-                </div>
-
-            <div class="two-col">
-                <div class="field">
-                    <label>Department <span class="req">*</span></label>
-                    <div class="select-wrap">
-                        <select id="dept" required>
-                            <option value="" disabled selected>Select department</option>
-                            <option>CSE</option>
-                            <option>EEE</option>
-                            <option>CE</option>
-                            <option>ME</option>
-                            <option>ECE</option>
-                            <option>IEM</option>
-                            <option>ESE</option>
-                            <option>BME</option>
-                            <option>URP</option>
-                            <option>LE</option>
-                            <option>TE</option>
-                            <option>BECM</option>
-                            <option>ARCH</option>
-                            <option>MSE</option>
-                            <option>CHE</option>
-                            <option>MTE</option>
-                        </select>
-                        <span class="select-arrow">▾</span>
-                    </div>
-                    <div class="err" id="err-dept">Please select a department.</div>
-                </div>
-                <div class="field">
-                    <label>Batch <span class="req">*</span></label>
-                    <div class="select-wrap">
-                        <select id="batch" required>
-                            <option value="" disabled selected>Select batch</option>
-                            <option>2k20</option>
-                            <option>2k21</option>
-                            <option>2k22</option>
-                            <option>2k23</option>
-                            <option>2k24</option>
-                        </select>
-                        <span class="select-arrow">▾</span>
-                    </div>
-                    <div class="err" id="err-batch">Please select a batch.</div>
-                </div>
+                <label>Full Name <span class="req">*</span></label>
+                @Html.TextBoxFor(m => m.FullName, new { @placeholder = "e.g. Aavas Roy", @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "err" })
             </div>
+            <div class="field">
+                <label>Roll Number <span class="req">*</span></label>
+                @Html.TextBoxFor(m => m.RollNumber, new { @placeholder = "e.g. 2207099", @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.RollNumber, "", new { @class = "err" })
+            </div>
+        </div>
 
-            <div class="handles-group">
+        <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            @Html.TextBoxFor(m => m.Email, new { @placeholder = "e.g. student@kuet.ac.bd", @type = "email", @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "err" })
+        </div>
+
+        <div class="two-col">
+            <div class="field">
+                <label>Department <span class="req">*</span></label>
+                <div class="select-wrap">
+                    @Html.DropDownListFor(m => m.Department, new SelectList(new[] { "CSE", "EEE", "CE", "ME", "ECE", "IEM", "ESE", "BME", "URP", "LE", "TE", "BECM", "ARCH", "MSE", "CHE", "MTE" }), "Select department", new { @class = "form-select" })
+                    <span class="select-arrow">&#9662;</span>
+                </div>
+                @Html.ValidationMessageFor(m => m.Department, "", new { @class = "err" })
+            </div>
+            <div class="field">
+                <label>Batch <span class="req">*</span></label>
+                <div class="select-wrap">
+                    @Html.DropDownListFor(m => m.Batch, new SelectList(new[] { "2k20", "2k21", "2k22", "2k23", "2k24" }), "Select batch", new { @class = "form-select" })
+                    <span class="select-arrow">&#9662;</span>
+                </div>
+                @Html.ValidationMessageFor(m => m.Batch, "", new { @class = "err" })
+            </div>
+        </div>
+
+        <div class="handles-group">
             <div class="section-title handles">Competitive Programming Handles <span class="optional-tag">optional</span></div>
 
             <div class="two-col">
                 <div class="field">
-                    <label>
-                        Codeforces Handle
-                    </label>
-                    <input type="text" id="cf" placeholder="cf_handle">
+                    <label>Codeforces Handle</label>
+                    @Html.TextBoxFor(m => m.CodeForcesHandle, new { @placeholder = "cf_handle", @class = "form-control" })
                 </div>
                 <div class="field">
-                    <label>
-                        AtCoder Handle
-                    </label>
-                    <input type="text" id="ac" placeholder="atcoder_handle">
+                    <label>AtCoder Handle</label>
+                    @Html.TextBoxFor(m => m.AtCoderHandle, new { @placeholder = "atcoder_handle", @class = "form-control" })
                 </div>
             </div>
 
             <div class="two-col">
                 <div class="field">
-                    <label>
-                        CodeChef Handle
-                    </label>
-                    <input type="text" id="cc" placeholder="codechef_handle">
+                    <label>CodeChef Handle</label>
+                    @Html.TextBoxFor(m => m.CodeChefHandle, new { @placeholder = "codechef_handle", @class = "form-control" })
                 </div>
                 <div class="field">
-                    <label>
-                        LeetCode Handle
-                    </label>
-                    <input type="text" id="lc" placeholder="leetcode_handle">
+                    <label>LeetCode Handle</label>
+                    @Html.TextBoxFor(m => m.LeetCodeHandle, new { @placeholder = "leetcode_handle", @class = "form-control" })
                 </div>
             </div>
 
             <div class="field">
                 <label>VJudge Handle</label>
-                <input type="text" id="vj" placeholder="vjudge_handle">
+                @Html.TextBoxFor(m => m.VJudgeHandle, new { @placeholder = "vjudge_handle", @class = "form-control" })
             </div>
+        </div>
 
-            </div>
-
-            <div class="statement-group">
+        <div class="statement-group">
             <div class="section-title statement">Statement of Interest</div>
 
             <div class="field">
                 <label>Why do you want to join SGIPC? <span class="req">*</span></label>
-                <textarea id="reason" rows="5" placeholder="Tell us about your programming background, goals, and why you want to be part of SGIPC" required></textarea>
+                @Html.TextAreaFor(m => m.ReasonForJoin, new { @rows = "5", @placeholder = "Tell us about your programming background, goals, and why you want to be part of SGIPC", @class = "form-control", @maxlength = "500" })
                 <div class="char-count"><span id="charCount">0</span> / 500 characters</div>
-                <div class="err" id="err-reason">Please tell us why you want to join.</div>
+                @Html.ValidationMessageFor(m => m.ReasonForJoin, "", new { @class = "err" })
             </div>
+        </div>
 
-            </div>
+        <div class="notice">
+            <span class="notice-icon">&#x1F6C8</span>
+            Your application will be reviewed by the SGIPC admin team. You will be notified of the decision via your university email or roll number.
+        </div>
 
-            <div class="notice">
-                <span class="notice-icon">&#x1F6C8</span>
-                Your application will be reviewed by the SGIPC admin team. You will be notified of the decision via your university email or roll number.
-            </div>
+        <button type="submit" class="btn btn-submit" id="submitBtn">Submit Application</button>
+    }
+</div>
 
-            <button type="submit" class="btn btn-submit">Submit Application</button>
-
-        </form>
+<!-- Success Message -->
+<div id="successMessage" class="success-message" style="display: none;">
+    <div class="success-content">
+        <div class="success-icon">&#10003;</div>
+        <h3>Application Submitted!</h3>
+        <p>Your application has been submitted successfully. Our admin team will review it shortly and notify you via email.</p>
     </div>
+</div>
 
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.19.5/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.19.5/additional-methods.min.js"></script>
+<script src='@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")'></script>
+<script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")'></script>
 <script src='@Url.Content("~/Scripts/Portfolio/form.js")'></script>
+
+

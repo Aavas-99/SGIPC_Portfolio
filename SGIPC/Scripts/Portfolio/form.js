@@ -1,53 +1,51 @@
-// Set current year in footer
-document.getElementById('year').textContent = new Date().getFullYear();
+// Character counter for the textarea (ReasonForJoin field)
+document.addEventListener('DOMContentLoaded', function() {
+    var reasonInput = document.getElementById('ReasonForJoin');
+    var charCount = document.getElementById('charCount');
 
-// Character counter for the textarea
-var reasonInput = document.getElementById('reason');
-var charCount   = document.getElementById('charCount');
-
-reasonInput.addEventListener('input', function() {
-    var len = this.value.length;
-    charCount.textContent = len;
-
-    // Warning when approaching limit
-    if (len > 500) {
-        this.value = this.value.substring(0, 500);
-        charCount.textContent = 500;
+    if (reasonInput && charCount) {
+        reasonInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
     }
 
-    charCount.style.color = len >= 450 ? '#fb923c' : '';
-});
-
-function showError(id) {
-    document.getElementById('err-' + id).classList.add('show');
-}
-
-function hideError(id) {
-    document.getElementById('err-' + id).classList.remove('show');
-}
-
-function validateField(id) {
-    var val = document.getElementById(id).value.trim();
-    if (!val) {
-        showError(id);
-        return false;
+    // Handle form submission - show success message
+    var form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Check if form is valid by validating with jQuery
+            if ($(form).valid()) {
+                // Show success message
+                var successMsg = document.getElementById('successMessage');
+                if (successMsg) {
+                    successMsg.style.display = 'block';
+                    // Disable submit button to prevent duplicate submissions
+                    var submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Submitting...';
+                    }
+                }
+            }
+        });
     }
-    hideError(id);
-    return true;
-}
-
-['fullname', 'email', 'roll', 'dept', 'batch', 'reason'].forEach(function(id) {
-    document.getElementById(id).addEventListener('input', function() {
-        hideError(id);
-    });
-    document.getElementById(id).addEventListener('change', function() {
-        hideError(id);
-    });
 });
 
-// Email-specific validator
-function validateEmailField() {
-    var val = document.getElementById('email').value.trim();
+// jQuery Validation customization
+$(document).ready(function() {
+    // Customize error styling for form validation
+    $.validator.setDefaults({
+        errorClass: "err show",
+        validClass: "",
+        errorElement: "div",
+        highlight: function(element, errorClass, validClass) {
+            $(element).addClass('input-validation-error');
+        },
+        unhighlight: function(element, errorClass, validClass) {
+            $(element).removeClass('input-validation-error');
+        }
+    });
+});
     var re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!val || !re.test(val)) {
         showError('email');
@@ -55,7 +53,7 @@ function validateEmailField() {
     }
     hideError('email');
     return true;
-}
+
 
 
 function handleSubmit(e) {

@@ -14,6 +14,13 @@
     </span>
 </section>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="background-color: #10b981; color: white; padding: 16px 24px; margin: 20px 40px; border-radius: 8px; text-align: center; font-weight: 500; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+        &#10003; @TempData["SuccessMessage"]
+    </div>
+}
+
 <!-- About SGIPC Section -->
 <section id="about" class="about">
     <h2>About SGIPC</h2><br>
