@@ -220,5 +220,49 @@ namespace SGIPC.Controllers
             Session.RemoveAll();
             return RedirectToAction("Index");
         }
+
+        public ActionResult Contact()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Contact(ContactViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    using (SqlConnection conn = DbHelper.GetConnection())
+                    {
+                        conn.Open();
+
+                        // Insert contact message into database
+                        string insertQuery = @"INSERT INTO dbo.ContactMessages 
+                            (FirstName, Email, Message, Status, SubmittedAt) 
+                            VALUES 
+                            (@FirstName, @Email, @Message, 'Not Replied', GETDATE())";
+
+                        SqlCommand cmd = new SqlCommand(insertQuery, conn);
+                        cmd.Parameters.AddWithValue("@FirstName", model.FirstName ?? "");
+                        cmd.Parameters.AddWithValue("@Email", model.Email ?? "");
+                        cmd.Parameters.AddWithValue("@Message", model.Message ?? "");
+
+                        cmd.ExecuteNonQuery();
+
+                        // Set success message and redirect
+                        TempData["SuccessMessage"] = "Thank you for contacting us! We've received your message and will get back to you soon.";
+                        return RedirectToAction("Index");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while sending your message: " + ex.Message);
+                }
+            }
+
+            return View(model);
+        }
     }
 }

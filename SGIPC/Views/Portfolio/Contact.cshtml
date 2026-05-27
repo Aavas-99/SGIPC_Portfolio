@@ -1,0 +1,284 @@
+@model SGIPC.Models.ContactViewModel
+@{
+    ViewBag.Title = "Contact Us";
+    Layout = null;
+    var userEmail = Session["UserEmail"]?.ToString() ?? "";
+    if (string.IsNullOrEmpty(userEmail) && User.Identity.IsAuthenticated)
+    {
+        userEmail = User.Identity.Name ?? "";
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Session["UserEmail"] = userEmail;
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SGIPC</title>
+    <link rel="icon" type="image/jpg" href='@Url.Content("~/Content/Portfolio/images/SGIPC.jpg")'>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href='@Url.Content("~/Content/Portfolio/contact.css")'>
+</head>
+<body>
+
+<!-- Navbar section -->
+<header>
+    <div class="logo">
+        <img src='@Url.Content("~/Content/Portfolio/images/SGIPC.png")' alt="SGIPC Logo">
+        <h2>SGIPC</h2>
+    </div>
+    <nav>
+        <a href='@Url.Action("Index", "Portfolio")#home'>Home</a>
+        <a href='@Url.Action("Index", "Portfolio")#about'>About</a>
+        <a href='@Url.Action("Committee", "Portfolio")'>Committee</a>
+        <a href='@Url.Action("Index", "Portfolio")#events'>Events</a>
+        <a href='@Url.Action("Index", "Portfolio")#achievements'>Achievements</a>
+        <a href='@Url.Action("Index", "Portfolio")#join'>Join</a>
+        <a href='@Url.Action("Index", "Portfolio")#contact'>Contact</a>
+        @if (!string.IsNullOrEmpty(userEmail))
+        {
+            <div class="user-menu-dropdown">
+                <button class="user-menu-btn">
+                    <svg class="user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="user-name">@userEmail.Split('@')[0]</span>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">@userEmail</div>
+                    <a href='@Url.Action("Logout", "Portfolio")' class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        }
+    </nav>
+</header>
+
+<style>
+    /* Header logo styling */
+    header .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+    }
+
+    header .logo img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+        object-fit: contain;
+    }
+
+    header .logo h2 {
+        margin: 0;
+        color: white;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 30px;
+        background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+        border-bottom: 1px solid rgba(52, 211, 153, 0.2);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+    }
+
+    header nav {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    header nav a {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    header nav a:hover {
+        color: #38bdf8;
+    }
+
+    .user-menu-dropdown {
+        position: relative;
+    }
+
+    .user-menu-btn {
+        background: none;
+        border: 1px solid #38bdf8;
+        color: #38bdf8;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .user-menu-btn:hover {
+        background-color: rgba(56, 189, 248, 0.1);
+        color: #06b6d4;
+        border-color: #06b6d4;
+    }
+
+    .user-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-top: 8px;
+        min-width: 200px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .user-menu-dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        font-size: 13px;
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 10px 16px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f5f5f5;
+        color: #667eea;
+    }
+
+    .dropdown-item:last-child:hover {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+</style>
+
+<div class="contact-container">
+    <div class="contact-wrapper" padding=" 0px 60px">
+        <!-- Left Section: Info -->
+        <div class="contact-info">
+            <h1>Get In Touch</h1>
+            <p class="subtitle">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            
+            <div class="info-note">
+                <p class="info-title">Response Time</p>
+                <p class="info-text">We typically respond within 24-48 hours</p>
+            </div>
+
+            <div class="privacy-note">
+                <p class="privacy-title">We Guarantee Your Privacy</p>
+                <p class="privacy-text">Your email and message are secure with us. We never share your information with third parties.</p>
+            </div>
+        </div>
+
+        <!-- Right Section: Form -->
+        <div class="contact-form-wrapper">
+            @using (Html.BeginForm("Contact", "Portfolio", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <h2>Send us a Message</h2>
+
+                if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Count > 0)
+                {
+                    <div class="validation-summary-errors">
+                        <h3>Please fix the following errors:</h3>
+                        @Html.ValidationSummary(false)
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label>First Name <span class="req">*</span></label>
+                    @Html.TextBoxFor(m => m.FirstName, new { @placeholder = "Your first name", @class = "form-input" })
+                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "err-msg" })
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address <span class="req">*</span></label>
+                    @Html.TextBoxFor(m => m.Email, new { @placeholder = "your@email.com", @type = "email", @class = "form-input" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "err-msg" })
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Message <span class="req">*</span></label>
+                    @Html.TextAreaFor(m => m.Message, new { @rows = "6", @placeholder = "Tell us what's on your mind...", @class = "form-textarea", @maxlength = "2000" })
+                    <div class="char-count"><span id="charCount">0</span> / 2000 characters</div>
+                    @Html.ValidationMessageFor(m => m.Message, "", new { @class = "err-msg" })
+                </div>
+
+                <button type="submit" class="btn btn-send" id="submitBtn">Send Message</button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="success-modal" style="display: none;">
+    <div class="success-modal-content">
+        <div class="success-animation">
+            <div class="checkmark"></div>
+        </div>
+        <h3>Message Sent!</h3>
+        <p>Thank you for contacting us. We'll get back to you soon.</p>
+        <button class="btn btn-modal-close" onclick="location.href='@Url.Action("Index", "Portfolio")'">Back to Home</button>
+    </div>
+</div>
+
+<!-- Footer Section -->
+<footer>
+    <p>&copy; <span id="year"></span> SGIPC | Built for programmers</p>
+</footer>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+
+<script src='@Url.Content("~/Scripts/Portfolio/contact.js")'></script>

@@ -143,6 +143,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ApplicationFormViewModel.cs" />
+    <Compile Include="Models\ContactViewModel.cs" />
     <Compile Include="Models\DbHelper.cs" />
     <Compile Include="Models\UserModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -169,6 +170,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Content\Portfolio\committee.css" />
     <Content Include="Content\Portfolio\form.css" />
+    <Content Include="Content\Portfolio\contact.css" />
     <Content Include="Content\Portfolio\main.css" />
     <Content Include="Content\Portfolio\signin.css" />
     <Content Include="Content\Portfolio\signup.css" />
@@ -180,6 +182,7 @@
     <Content Include="Content\Portfolio\images\SGIPC.png" />
     <Content Include="Scripts\Portfolio\committee.js" />
     <Content Include="Scripts\Portfolio\form.js" />
+    <Content Include="Scripts\Portfolio\contact.js" />
     <Content Include="Scripts\Portfolio\main.js" />
     <Content Include="Scripts\Portfolio\signin.js" />
     <Content Include="Scripts\Portfolio\signup.js" />
@@ -188,6 +191,7 @@
     <Content Include="Views\Portfolio\Signin.cshtml" />
     <Content Include="Views\Portfolio\Signup.cshtml" />
     <Content Include="Views\Portfolio\Form.cshtml" />
+    <Content Include="Views\Portfolio\Contact.cshtml" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
     <Content Include="Scripts\bootstrap.esm.min.js" />

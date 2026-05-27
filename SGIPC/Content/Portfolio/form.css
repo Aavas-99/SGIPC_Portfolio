@@ -558,3 +558,11 @@ footer {
         transform: scale(1);
     }
 }
+
+.field-validation-valid {
+    display: none;
+}
+
+.validation-summary-valid {
+    display: none;
+}
