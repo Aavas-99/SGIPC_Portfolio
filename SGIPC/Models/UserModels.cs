@@ -27,4 +27,11 @@ namespace SGIPC.Models
         public string Password { get; set; }
         public bool RememberMe { get; set; }
     }
+
+    public class ChangePasswordViewModel
+    {
+        public string CurrentPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string ConfirmNewPassword { get; set; }
+    }
 }

@@ -157,6 +157,82 @@ namespace SGIPC.Controllers
             return View(model);
         }
 
+        public ActionResult ChangePassword()
+        {
+            if (string.IsNullOrEmpty(Session["UserEmail"]?.ToString()) && !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Signin");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            var email = Session["UserEmail"]?.ToString() ?? User.Identity.Name;
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.CurrentPassword))
+            {
+                ModelState.AddModelError("CurrentPassword", "Current password is required.");
+            }
+            if (string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                ModelState.AddModelError("NewPassword", "New password is required.");
+            }
+            if (string.IsNullOrWhiteSpace(model.ConfirmNewPassword))
+            {
+                ModelState.AddModelError("ConfirmNewPassword", "Confirm new password is required.");
+            }
+            if (!string.IsNullOrWhiteSpace(model.NewPassword) && !string.IsNullOrWhiteSpace(model.ConfirmNewPassword) && model.NewPassword != model.ConfirmNewPassword)
+            {
+                ModelState.AddModelError("", "New Password and Confirm New Password do not match.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using (SqlConnection conn = DbHelper.GetConnection())
+                {
+                    conn.Open();
+                    string query = "SELECT Password FROM dbo.Users WHERE Email = @Email";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    string storedPassword = cmd.ExecuteScalar()?.ToString();
+                    if (string.IsNullOrEmpty(storedPassword) || !BCrypt.Net.BCrypt.Verify(model.CurrentPassword, storedPassword))
+                    {
+                        ModelState.AddModelError("", "Current password is incorrect.");
+                        return View(model);
+                    }
+
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+                    string updateQuery = "UPDATE dbo.Users SET Password = @Password WHERE Email = @Email";
+                    SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                    updateCmd.Parameters.AddWithValue("@Password", hashedPassword);
+                    updateCmd.Parameters.AddWithValue("@Email", email);
+                    updateCmd.ExecuteNonQuery();
+                }
+
+                TempData["SuccessMessage"] = "Password changed successfully.";
+                return RedirectToAction("ChangePassword");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred: " + ex.Message);
+                return View(model);
+            }
+        }
+
         public ActionResult Form()
         {
             return View();
