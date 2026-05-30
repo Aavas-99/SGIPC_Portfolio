@@ -146,6 +146,7 @@
     <Compile Include="Models\ContactViewModel.cs" />
     <Compile Include="Models\DbHelper.cs" />
     <Compile Include="Models\UserModels.cs" />
+    <Compile Include="Models\AdminViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +174,7 @@
     <Content Include="Content\Portfolio\contact.css" />
     <Content Include="Content\Portfolio\main.css" />
     <Content Include="Content\Portfolio\signin.css" />
+    <Content Include="Content\Portfolio\AdminDashboard.css" />
     <Content Include="Content\Portfolio\signup.css" />
     <Content Include="Content\Portfolio\images\buet_iupc_26.jpg" />
     <Content Include="Content\Portfolio\images\icpc_reg_25.jpg" />
@@ -192,6 +194,8 @@
     <Content Include="Views\Portfolio\Signup.cshtml" />
     <Content Include="Views\Portfolio\Form.cshtml" />
     <Content Include="Views\Portfolio\Contact.cshtml" />
+    <Content Include="Views\Portfolio\ChangePassword.cshtml" />
+    <Content Include="Views\Portfolio\AdminDashboard.cshtml" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
     <Content Include="Scripts\bootstrap.esm.min.js" />

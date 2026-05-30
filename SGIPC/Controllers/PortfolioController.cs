@@ -48,6 +48,23 @@ namespace SGIPC.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (model.IsAdmin)
+                {
+                    if (string.Equals(model.Email, "admin@sgipc.kuet", StringComparison.OrdinalIgnoreCase)
+                        && model.Password == "admin1234")
+                    {
+                        FormsAuthentication.SetAuthCookie(model.Email, model.RememberMe);
+                        Session["UserId"] = "admin";
+                        Session["UserEmail"] = model.Email;
+                        Session["UserRole"] = "admin";
+                        EnsureAdminTables();
+                        return RedirectToAction("AdminDashboard");
+                    }
+
+                    ModelState.AddModelError("", "Invalid admin email or password.");
+                    return View(model);
+                }
+
                 try
                 {
                     using (SqlConnection conn = DbHelper.GetConnection())
@@ -71,6 +88,7 @@ namespace SGIPC.Controllers
                                     // Also set session variables for current session
                                     Session["UserId"] = reader["Id"].ToString();
                                     Session["UserEmail"] = model.Email;
+                                    Session["UserRole"] = reader["Role"]?.ToString() ?? "user";
 
                                     return RedirectToAction("Index");
                                 }
@@ -93,6 +111,316 @@ namespace SGIPC.Controllers
             }
 
             return View(model);
+        }
+
+        private bool IsAdminUser()
+        {
+            return Session["UserRole"]?.ToString() == "admin";
+        }
+
+        private void EnsureAdminTables()
+        {
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+
+                string ensureAnnouncements = @"IF OBJECT_ID('dbo.Announcements', 'U') IS NULL 
+BEGIN
+    CREATE TABLE dbo.Announcements
+    (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Title NVARCHAR(200) NOT NULL,
+        Content NVARCHAR(MAX) NOT NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT(GETDATE())
+    )
+END";
+
+                string ensureResources = @"IF OBJECT_ID('dbo.Resources', 'U') IS NULL 
+BEGIN
+    CREATE TABLE dbo.Resources
+    (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Title NVARCHAR(200) NOT NULL,
+        Description NVARCHAR(MAX) NULL,
+        FileName NVARCHAR(255) NOT NULL,
+        MediaType NVARCHAR(200) NOT NULL,
+        MediaData VARBINARY(MAX) NOT NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT(GETDATE())
+    )
+END";
+
+                new SqlCommand(ensureAnnouncements, conn).ExecuteNonQuery();
+                new SqlCommand(ensureResources, conn).ExecuteNonQuery();
+            }
+        }
+
+        public ActionResult AdminDashboard()
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            EnsureAdminTables();
+
+            var model = new AdminDashboardViewModel();
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+
+                string usersQuery = "SELECT Id, Email, CreatedAt FROM dbo.Users ORDER BY CreatedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(usersQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.RegisteredUsers.Add(new RegisteredUserViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Email = reader["Email"].ToString(),
+                            UserName = reader["Email"].ToString().Split('@')[0],
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+
+                string membersQuery = @"SELECT Id, FullName, Email, RollNumber, Department, Batch, CodeForcesHandle, AtCoderHandle, CodeChefHandle, LeetCodeHandle, VJudgeHandle, ReasonForJoin, Status, SubmittedAt
+FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(membersQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var member = new MemberInfoViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            FullName = reader["FullName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            RollNumber = reader["RollNumber"].ToString(),
+                            Department = reader["Department"].ToString(),
+                            Batch = reader["Batch"].ToString(),
+                            CodeForcesHandle = reader["CodeForcesHandle"].ToString(),
+                            AtCoderHandle = reader["AtCoderHandle"].ToString(),
+                            CodeChefHandle = reader["CodeChefHandle"].ToString(),
+                            LeetCodeHandle = reader["LeetCodeHandle"].ToString(),
+                            VJudgeHandle = reader["VJudgeHandle"].ToString(),
+                            ReasonForJoin = reader["ReasonForJoin"].ToString(),
+                            Status = reader["Status"].ToString(),
+                            SubmittedAt = Convert.ToDateTime(reader["SubmittedAt"])
+                        };
+
+                        if (string.Equals(member.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+                        {
+                            model.ApprovedMembers.Add(member);
+                        }
+                        else if (string.Equals(member.Status, "Pending", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(member.Status))
+                        {
+                            model.PendingMembers.Add(member);
+                        }
+                    }
+                }
+
+                string contactsQuery = "SELECT Id, FirstName, Email, Message, Status, SubmittedAt FROM dbo.ContactMessages ORDER BY SubmittedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(contactsQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.ContactMessages.Add(new ContactMessageViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            FirstName = reader["FirstName"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Message = reader["Message"].ToString(),
+                            Status = reader["Status"].ToString(),
+                            SubmittedAt = Convert.ToDateTime(reader["SubmittedAt"])
+                        });
+                    }
+                }
+
+                string announcementsQuery = "SELECT Id, Title, Content, CreatedAt FROM dbo.Announcements ORDER BY CreatedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(announcementsQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.Announcements.Add(new AnnouncementViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Content = reader["Content"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+
+                string resourcesQuery = "SELECT Id, Title, Description, FileName, MediaType, CreatedAt FROM dbo.Resources ORDER BY CreatedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(resourcesQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.Resources.Add(new ResourceViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Description = reader["Description"].ToString(),
+                            FileName = reader["FileName"].ToString(),
+                            MediaType = reader["MediaType"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApproveMember(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string updateQuery = "UPDATE dbo.ApplicationForm SET Status = 'Approved' WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RejectMember(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string updateQuery = "UPDATE dbo.ApplicationForm SET Status = 'Rejected' WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddAnnouncement(AnnouncementInputModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Please provide both title and content for the announcement.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            EnsureAdminTables();
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string insertQuery = "INSERT INTO dbo.Announcements (Title, Content, CreatedAt) VALUES (@Title, @Content, GETDATE())";
+                SqlCommand cmd = new SqlCommand(insertQuery, conn);
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@Content", model.Content);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Announcement added successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddResource(ResourceInputModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (model.File == null || model.File.ContentLength == 0)
+            {
+                TempData["ErrorMessage"] = "Please upload an image or video resource file.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Please add a title and select a file.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            EnsureAdminTables();
+            using (var memoryStream = new System.IO.MemoryStream())
+            {
+                model.File.InputStream.CopyTo(memoryStream);
+                byte[] mediaData = memoryStream.ToArray();
+
+                using (SqlConnection conn = DbHelper.GetConnection())
+                {
+                    conn.Open();
+                    string insertQuery = @"INSERT INTO dbo.Resources (Title, Description, FileName, MediaType, MediaData, CreatedAt)
+                                            VALUES (@Title, @Description, @FileName, @MediaType, @MediaData, GETDATE())";
+                    SqlCommand cmd = new SqlCommand(insertQuery, conn);
+                    cmd.Parameters.AddWithValue("@Title", model.Title);
+                    cmd.Parameters.AddWithValue("@Description", model.Description ?? string.Empty);
+                    cmd.Parameters.AddWithValue("@FileName", System.IO.Path.GetFileName(model.File.FileName));
+                    cmd.Parameters.AddWithValue("@MediaType", model.File.ContentType);
+                    cmd.Parameters.AddWithValue("@MediaData", mediaData);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            TempData["SuccessMessage"] = "Resource uploaded successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        public ActionResult ResourceFile(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT FileName, MediaType, MediaData FROM dbo.Resources WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var mediaType = reader["MediaType"].ToString();
+                        var mediaData = (byte[])reader["MediaData"];
+                        return File(mediaData, mediaType);
+                    }
+                }
+            }
+
+            return HttpNotFound();
         }
 
         public ActionResult Signup()

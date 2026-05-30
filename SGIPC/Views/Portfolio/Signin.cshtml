@@ -38,13 +38,33 @@
             @Html.PasswordFor(m => m.Password, new { @placeholder = "Enter your password", @required = "required", @class = "form-control" })
         </div>
 
+        <div class="field">
+            <label>Account type</label>
+            <div class="login-type-toggle">
+                <button type="button" class="toggle-btn active" id="btnUser" onclick="setLoginType(false)">
+                    User
+                </button>
+                <button type="button" class="toggle-btn" id="btnAdmin" onclick="setLoginType(true)">
+                    Admin
+                </button>
+            </div>
+            @Html.HiddenFor(m => m.IsAdmin, new { @id = "isAdminHidden" })
+        </div>
+
         <div class="row">
             <label class="remember">
                 @Html.CheckBoxFor(m => m.RememberMe) Remember me
             </label>
-            <a href="#" class="forgot">Forgot password?</a>
         </div>
 
         <button type="submit" class="btn btn-primary">Sign In</button>
     }
 </div>
+
+<script>
+    function setLoginType(isAdmin) {
+        document.getElementById('isAdminHidden').value = isAdmin;
+        document.getElementById('btnUser').classList.toggle('active', !isAdmin);
+        document.getElementById('btnAdmin').classList.toggle('active', isAdmin);
+    }
+</script>

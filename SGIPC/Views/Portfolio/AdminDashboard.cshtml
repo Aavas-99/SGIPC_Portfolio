@@ -1,0 +1,338 @@
+@model SGIPC.Models.AdminDashboardViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Admin Dashboard";
+}
+<head>
+    <link rel="stylesheet" href='@Url.Content("~/Content/Portfolio/AdminDashboard.css")' />
+    <link rel="icon" type="image/jpg" href='@Url.Content("~/Content/Portfolio/images/SGIPC.jpg")'>
+    <title>Admin Dashboard - SGIPC</title>
+</head>
+
+<main class="admin-dashboard">
+    <section class="admin-hero">
+        <div>
+            <h1>SGIPC</h1>
+            <p><strong>Admin Dashboard</strong></p>
+        </div>
+        <div class="hero-stats">
+            <div>
+                <span>@Model.RegisteredUsers.Count</span>
+                <small>Registered users</small>
+            </div>
+            <div>
+                <span>@Model.ApprovedMembers.Count</span>
+                <small>Approved members</small>
+            </div>
+            <div>
+                <span>@Model.PendingMembers.Count</span>
+                <small>Pending approvals</small>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="@Url.Action("Logout", "Portfolio")" class="btn logout">Logout</a>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert error">@TempData["ErrorMessage"]</div>
+    }
+
+    <section class="panel">
+        <h2>Registered Users</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Registered At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RegisteredUsers.Count == 0)
+                    {
+                        <tr><td colspan="4">No registered users found.</td></tr>
+                    }
+                    else
+                    {
+                        var index = 1;
+                        foreach (var user in Model.RegisteredUsers)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>@user.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Approved Members</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roll</th>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>Codeforces</th>
+                        <th>AtCoder</th>
+                        <th>CodeChef</th>
+                        <th>LeetCode</th>
+                        <th>VJudge</th>
+                        <th>Join Reason</th>
+                        <th>Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ApprovedMembers.Count == 0)
+                    {
+                        <tr><td colspan="12">No approved members.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var member in Model.ApprovedMembers)
+                        {
+                            <tr>
+                                <td>@member.FullName</td>
+                                <td>@member.Email</td>
+                                <td>@member.RollNumber</td>
+                                <td>@member.Department</td>
+                                <td>@member.Batch</td>
+                                <td>@member.CodeForcesHandle</td>
+                                <td>@member.AtCoderHandle</td>
+                                <td>@member.CodeChefHandle</td>
+                                <td>@member.LeetCodeHandle</td>
+                                <td>@member.VJudgeHandle</td>
+                                <td>@member.ReasonForJoin</td>
+                                <td>@member.SubmittedAt.ToString("dd MMM yyyy")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Pending Approval</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>Codeforces</th>
+                        <th>AtCoder</th>
+                        <th>CodeChef</th>
+                        <th>LeetCode</th>
+                        <th>VJudge</th>
+                        <th>Join Reason</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PendingMembers.Count == 0)
+                    {
+                        <tr><td colspan="12">No pending applications.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var member in Model.PendingMembers)
+                        {
+                            <tr>
+                                <td>@member.FullName</td>
+                                <td>@member.Email</td>
+                                <td>@member.Department</td>
+                                <td>@member.Batch</td>
+                                <td>@member.CodeForcesHandle</td>
+                                <td>@member.AtCoderHandle</td>
+                                <td>@member.CodeChefHandle</td>
+                                <td>@member.LeetCodeHandle</td>
+                                <td>@member.VJudgeHandle</td>
+                                <td>@member.ReasonForJoin</td>
+                                <td>@member.SubmittedAt.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @using (Html.BeginForm("ApproveMember", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", member.Id)
+                                        <button type="submit" class="btn small approve">Approve</button>
+                                    }
+                                    @using (Html.BeginForm("RejectMember", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", member.Id)
+                                        <button type="submit" class="btn small reject">Reject</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Contact Messages</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Received</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ContactMessages.Count == 0)
+                    {
+                        <tr><td colspan="5">No contact messages.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var message in Model.ContactMessages)
+                        {
+                            <tr>
+                                <td>@message.FirstName</td>
+                                <td>@message.Email</td>
+                                <td>@message.Message</td>
+                                <td>@(string.IsNullOrEmpty(message.Status) ? "Not Replied" : message.Status)</td>
+                                <td>@message.SubmittedAt.ToString("dd MMM yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Announcements</h2>
+        <div class="panel-grid">
+            <div class="panel-half">
+                <form action="@Url.Action("AddAnnouncement", "Portfolio")" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="field">
+                        <label>Title</label>
+                        <input type="text" name="Title" required maxlength="200" />
+                    </div>
+                    <div class="field">
+                        <label>Content</label>
+                        <textarea name="Content" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Publish Announcement</button>
+                </form>
+            </div>
+            <div class="panel-half">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Created At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Announcements.Count == 0)
+                            {
+                                <tr><td colspan="2">No announcements published.</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var announcement in Model.Announcements)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@announcement.Title</strong>
+                                            <p>@announcement.Content</p>
+                                        </td>
+                                        <td>@announcement.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Resources</h2>
+        <div class="panel-grid">
+            <div class="panel-half">
+                <form action="@Url.Action("AddResource", "Portfolio")" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="field">
+                        <label>Title</label>
+                        <input type="text" name="Title" required maxlength="200" />
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea name="Description" rows="3"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Image or Video</label>
+                        <input type="file" name="File" accept="image/*,video/*" required />
+                    </div>
+                    <button type="submit" class="btn">Upload Resource</button>
+                </form>
+            </div>
+            <div class="panel-half">
+                <div class="resource-grid">
+                    @if (Model.Resources.Count == 0)
+                    {
+                        <div class="empty-card">No resources uploaded.</div>
+                    }
+                    else
+                    {
+                        foreach (var resource in Model.Resources)
+                        {
+                            <div class="resource-card">
+                                <div class="resource-header">
+                                    <h3>@resource.Title</h3>
+                                    <span>@resource.CreatedAt.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <p>@resource.Description</p>
+                                @if (resource.MediaType.StartsWith("image/"))
+                                {
+                                    <img src="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })" alt="@resource.Title" />
+                                }
+                                else if (resource.MediaType.StartsWith("video/"))
+                                {
+                                    <video controls src="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })"></video>
+                                }
+                                else
+                                {
+                                    <a class="btn secondary" href="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })">Download</a>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
