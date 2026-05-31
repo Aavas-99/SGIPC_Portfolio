@@ -283,3 +283,25 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
 
 <script src='@Url.Content("~/Scripts/Portfolio/contact.js")'></script>
+
+<!-- @if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("successModal").style.display = "flex";
+        });
+    </script>
+} -->
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        alert('TempData is working');
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("successModal").style.display = "flex";
+        });
+    </script>
+}
+
+</body>
+</html>

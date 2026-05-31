@@ -1,0 +1,50 @@
+@model SGIPC.Models.EventEditModel
+@{
+    ViewBag.Title = "Edit Event";
+    Layout = "~/Views/Portfolio/_Layout.cshtml";
+}
+<link rel="stylesheet" href='@Url.Content("~/Content/Portfolio/main.css")'>
+
+<section class="page-banner">
+    <div class="page-banner-content">
+        <h1>Edit Event</h1>
+        <p>Update event details for the admin dashboard.</p>
+    </div>
+</section>
+
+<section class="form-page">
+    <div class="form-card">
+        @using (Html.BeginForm("UpdateEvent", "Portfolio", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+
+            <div class="field">
+                <label>Title</label>
+                @Html.TextBoxFor(m => m.Title, new { @class = "input-field", maxlength = 200, required = "required" })
+            </div>
+            <div class="field">
+                <label>Date</label>
+                @Html.TextBoxFor(m => m.Date, "{0:yyyy-MM-dd}", new { type = "date", @class = "input-field", required = "required" })
+            </div>
+            <div class="field">
+                <label>Time</label>
+                @Html.TextBoxFor(m => m.Time, new { type = "time", @class = "input-field" })
+            </div>
+            <div class="field">
+                <label>Location</label>
+                @Html.TextBoxFor(m => m.Location, new { @class = "input-field", maxlength = 250 })
+            </div>
+            <div class="field">
+                <label>Status</label>
+                @Html.DropDownListFor(m => m.Status, new SelectList(new[] { "Upcoming", "Ongoing", "Finished" }), "Select status", new { @class = "input-field", required = "required" })
+            </div>
+            <div class="field">
+                <label>Description</label>
+                @Html.TextAreaFor(m => m.Description, 4, 80, new { @class = "input-field" })
+            </div>
+            <button type="submit" class="btn">Update Event</button>
+            <a class="btn secondary" href="@Url.Action("AdminDashboard", "Portfolio")">Cancel</a>
+        }
+    </div>
+</section>

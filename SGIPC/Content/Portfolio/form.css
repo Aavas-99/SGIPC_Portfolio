@@ -424,7 +424,7 @@ select.input-validation-error:focus {
     align-items: center;
     text-align: center;
     padding: 40px 20px;
-    animation: fadeUp .4s ease both;
+    animation: fadeUp 0.4s ease both;
 }
 
 .success-box.show { display: flex; }
@@ -486,7 +486,7 @@ footer {
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 5s ease-out;
 }
 
 .success-content {

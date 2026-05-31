@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            e.preventDefault();
+
             // Disable button
             var submitBtn = document.getElementById('submitBtn');
 
@@ -39,8 +41,12 @@ document.addEventListener('DOMContentLoaded', function () {
             var successMsg = document.getElementById('successMessage');
 
             if (successMsg) {
-                successMsg.style.display = 'block';
+                successMsg.style.display = 'flex';
             }
+
+            setTimeout(function () {
+                form.submit();
+            }, 5000);
         });
     }
 });

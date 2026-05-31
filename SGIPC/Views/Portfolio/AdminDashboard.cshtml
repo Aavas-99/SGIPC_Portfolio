@@ -3,6 +3,7 @@
     Layout = null;
     ViewBag.Title = "Admin Dashboard";
 }
+
 <head>
     <link rel="stylesheet" href='@Url.Content("~/Content/Portfolio/AdminDashboard.css")' />
     <link rel="icon" type="image/jpg" href='@Url.Content("~/Content/Portfolio/images/SGIPC.jpg")'>
@@ -30,7 +31,7 @@
             </div>
         </div>
         <div class="hero-actions">
-            <a href="@Url.Action("Logout", "Portfolio")" class="btn logout">Logout</a>
+            <a href='@Url.Action("Logout", "Portfolio")' class="btn logout">Logout</a>
         </div>
     </section>
 
@@ -203,12 +204,13 @@
                         <th>Message</th>
                         <th>Status</th>
                         <th>Received</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model.ContactMessages.Count == 0)
                     {
-                        <tr><td colspan="5">No contact messages.</td></tr>
+                        <tr><td colspan="6">No contact messages.</td></tr>
                     }
                     else
                     {
@@ -220,6 +222,17 @@
                                 <td>@message.Message</td>
                                 <td>@(string.IsNullOrEmpty(message.Status) ? "Not Replied" : message.Status)</td>
                                 <td>@message.SubmittedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>
+                                    @if (message.Status != "Replied")
+                                    {
+                                        using (Html.BeginForm("MarkContactReplied", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", message.Id)
+                                            <button type="submit" class="btn small approve">Replied</button>
+                                        }
+                                    }
+                                </td>
                             </tr>
                         }
                     }
@@ -229,10 +242,93 @@
     </section>
 
     <section class="panel">
+        <h2>Events</h2>
+        <div class="panel-grid">
+            <div class="panel-half">
+                <form action='@Url.Action("AddEvent", "Portfolio")' method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="field">
+                        <label>Title</label>
+                        <input type="text" name="Title" required maxlength="200" />
+                    </div>
+                    <div class="field">
+                        <label>Date</label>
+                        <input type="date" name="Date" required />
+                    </div>
+                    <div class="field">
+                        <label>Start Time</label>
+                        <input type="time" name="STime" required />
+                    </div>
+                    <div class="field">
+                        <label>End Time</label>
+                        <input type="time" name="ETime" required />
+                    </div>
+                    <div class="field">
+                        <label>Location</label>
+                        <input type="text" name="Location" maxlength="250" required />
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea name="Description" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Add Event</button>
+                </form>
+            </div>
+
+            <div class="panel-half events-scroll">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Events.Count == 0)
+                            {
+                                <tr><td colspan="7">No events added yet.</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var evt in Model.Events)
+                                {
+                                    <tr>
+                                        <td>@evt.Title</td>
+                                        <td>@evt.Date.ToString("dd MMM yyyy")</td>
+                                        <td>@DateTime.Today.Add(TimeSpan.Parse(evt.STime)).ToString("hh:mm tt")</td>
+                                        <td>@DateTime.Today.Add(TimeSpan.Parse(evt.ETime)).ToString("hh:mm tt")</td>
+                                        <td>@evt.Location</td>
+                                        <td>@evt.Status</td>
+                                        <td>
+                                            <a class="btn small secondary" href='@Url.Action("EditEvent", "Portfolio", new { id = evt.Id })'>Edit</a>
+                                            @using (Html.BeginForm("DeleteEvent", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                @Html.Hidden("id", evt.Id)
+                                                <button type="submit" class="btn small reject">Delete</button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
         <h2>Announcements</h2>
         <div class="panel-grid">
             <div class="panel-half">
-                <form action="@Url.Action("AddAnnouncement", "Portfolio")" method="post">
+                <form action='@Url.Action("AddAnnouncement", "Portfolio")' method="post">
                     @Html.AntiForgeryToken()
                     <div class="field">
                         <label>Title</label>
@@ -245,13 +341,15 @@
                     <button type="submit" class="btn">Publish Announcement</button>
                 </form>
             </div>
-            <div class="panel-half">
+
+            <div class="panel-half announcements-scroll">
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>Created At</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -269,6 +367,17 @@
                                             <p>@announcement.Content</p>
                                         </td>
                                         <td>@announcement.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                        <td>
+                                            <div class="row-actions">
+                                                <a class="btn small secondary" href='@Url.Action("EditAnnouncement", "Portfolio", new { id = announcement.Id })'>Edit</a>
+                                                @using (Html.BeginForm("DeleteAnnouncement", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    @Html.Hidden("id", announcement.Id)
+                                                    <button type="submit" class="btn small reject">Delete</button>
+                                                }
+                                            </div>
+                                        </td>
                                     </tr>
                                 }
                             }
@@ -283,7 +392,7 @@
         <h2>Resources</h2>
         <div class="panel-grid">
             <div class="panel-half">
-                <form action="@Url.Action("AddResource", "Portfolio")" method="post" enctype="multipart/form-data">
+                <form action='@Url.Action("AddResource", "Portfolio")' method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <div class="field">
                         <label>Title</label>
@@ -300,7 +409,8 @@
                     <button type="submit" class="btn">Upload Resource</button>
                 </form>
             </div>
-            <div class="panel-half">
+
+            <div class="panel-half resources-scroll">
                 <div class="resource-grid">
                     @if (Model.Resources.Count == 0)
                     {
@@ -316,18 +426,32 @@
                                     <span>@resource.CreatedAt.ToString("dd MMM yyyy")</span>
                                 </div>
                                 <p>@resource.Description</p>
-                                @if (resource.MediaType.StartsWith("image/"))
+
+                                @if (resource.MediaType != null && resource.MediaType.StartsWith("image/"))
                                 {
-                                    <img src="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })" alt="@resource.Title" />
+                                    <img src='@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })' alt='@resource.Title' />
                                 }
-                                else if (resource.MediaType.StartsWith("video/"))
+                                else if (resource.MediaType != null && resource.MediaType.StartsWith("video/"))
                                 {
-                                    <video controls src="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })"></video>
+                                    <video controls src='@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })'></video>
                                 }
                                 else
                                 {
-                                    <a class="btn secondary" href="@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })">Download</a>
+                                    <a class="btn secondary" href='@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })'>Download</a>
                                 }
+
+                                <div class="resource-actions">
+                                    <a class="btn small secondary" href='@Url.Action("EditResource", "Portfolio", new { id = resource.Id })'>Edit</a>
+                                </div>
+
+                                <div class="resource-actions">
+                                    @using (Html.BeginForm("DeleteResource", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", resource.Id)
+                                        <button type="submit" class="btn small reject">Delete</button>
+                                    }
+                                </div>
                             </div>
                         }
                     }
@@ -336,3 +460,4 @@
         </div>
     </section>
 </main>
+

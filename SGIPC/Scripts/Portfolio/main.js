@@ -222,4 +222,33 @@ document.addEventListener('DOMContentLoaded', function() {
         startAuto();
     }
 
+    // HERO TYPING EFFECT 
+    var heroTyped  = document.getElementById('hero-typed');
+    var heroCursor = document.querySelector('.hero-cursor');
+    var heroSub    = document.getElementById('hero-sub');
+    var heroBtns   = document.getElementById('hero-btns');
+
+    if (heroTyped) {
+        var heroText = "Special Group Interested in Programming Contest";
+        var heroIdx  = 0;
+
+        function typeHero() {
+            if (heroIdx < heroText.length) {
+                heroTyped.textContent += heroText[heroIdx++];
+                setTimeout(typeHero, 42);
+            } else {
+                // Hide cursor after typing done
+                if (heroCursor) heroCursor.style.display = 'none';
+                // Fade in subtitle
+                if (heroSub) heroSub.classList.add('show');
+                // Fade in buttons after short delay
+                setTimeout(function () {
+                    if (heroBtns) heroBtns.classList.add('show');
+                }, 400);
+            }
+        }
+
+        typeHero();
+    }
+
 });

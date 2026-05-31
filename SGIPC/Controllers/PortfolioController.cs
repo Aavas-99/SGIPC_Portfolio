@@ -2,6 +2,7 @@ using System.Web.Mvc;
 using SGIPC.Models;
 using System.Data.SqlClient;
 using System;
+using System.Collections.Generic;
 using System.Web.Security;
 using System.Web.Mvc.Filters;
 
@@ -29,7 +30,34 @@ namespace SGIPC.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            EnsureAdminTables();
+
+            var model = new HomePageViewModel();
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string eventsQuery = "SELECT Id, Title, Date, STime, ETime, Location, Description, CreatedAt FROM dbo.Events ORDER BY Date ASC, STime ASC";
+                using (SqlCommand cmd = new SqlCommand(eventsQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.Events.Add(new EventViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Date = Convert.ToDateTime(reader["Date"]),
+                            STime = reader["STime"] != DBNull.Value ? reader["STime"].ToString() : string.Empty,
+                            ETime = reader["ETime"] != DBNull.Value ? reader["ETime"].ToString() : string.Empty,
+                            Location = reader["Location"].ToString(),
+                            Description = reader["Description"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+            }
+
+            return View(model);
         }
 
         public ActionResult Committee()
@@ -39,7 +67,7 @@ namespace SGIPC.Controllers
 
         public ActionResult Signin()
         {
-            return View();
+            return View(new SignInViewModel { IsAdmin = false , RememberMe = false});
         }
 
         [HttpPost]
@@ -70,37 +98,39 @@ namespace SGIPC.Controllers
                     using (SqlConnection conn = DbHelper.GetConnection())
                     {
                         conn.Open();
-                        string query = "SELECT * FROM dbo.Users WHERE Email = @Email";
+                        string query = "SELECT Id, Email, Password, Role FROM dbo.Users WHERE Email = @Email";
                         SqlCommand cmd = new SqlCommand(query, conn);
-                        cmd.Parameters.AddWithValue("@Email", model.Email);
+                        cmd.Parameters.AddWithValue("@Email", (model.Email ?? string.Empty).Trim());
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
-                            {
-                                string storedPassword = reader["Password"].ToString();
-                                
-                                // Check password (use BCrypt or other hashing in production)
-                                if (BCrypt.Net.BCrypt.Verify(model.Password, storedPassword))
-                                {
-                                    // Set authentication cookie (persistent if RememberMe is checked)
-                                    FormsAuthentication.SetAuthCookie(model.Email, model.RememberMe);
-                                    // Also set session variables for current session
-                                    Session["UserId"] = reader["Id"].ToString();
-                                    Session["UserEmail"] = model.Email;
-                                    Session["UserRole"] = reader["Role"]?.ToString() ?? "user";
-
-                                    return RedirectToAction("Index");
-                                }
-                                else
-                                {
-                                    ModelState.AddModelError("", "Invalid email or password.");
-                                }
-                            }
-                            else
+                            if (!reader.Read())
                             {
                                 ModelState.AddModelError("", "Invalid email or password.");
+                                return View(model);
                             }
+
+                            string storedHash = reader["Password"].ToString();
+
+                            // If your DB already stores plaintext (or double-hashed), BCrypt verification will fail.
+                            // This app inserts BCrypt hashes during signup.
+                            bool valid = BCrypt.Net.BCrypt.Verify((model.Password ?? string.Empty), storedHash);
+
+                            if (!valid)
+                            {
+                                ModelState.AddModelError("", "Invalid email or password.");
+                                return View(model);
+                            }
+
+                            // Set authentication cookie (persistent if RememberMe is checked)
+                            FormsAuthentication.SetAuthCookie(reader["Email"].ToString(), model.RememberMe);
+
+                            // Also set session variables for current session
+                            Session["UserId"] = reader["Id"].ToString();
+                            Session["UserEmail"] = reader["Email"].ToString();
+                            Session["UserRole"] = reader["Role"]?.ToString() ?? "user";
+
+                            return RedirectToAction("Index");
                         }
                     }
                 }
@@ -108,6 +138,7 @@ namespace SGIPC.Controllers
                 {
                     ModelState.AddModelError("", "An error occurred: " + ex.Message);
                 }
+
             }
 
             return View(model);
@@ -149,8 +180,24 @@ BEGIN
     )
 END";
 
+                string ensureEvents = @"IF OBJECT_ID('dbo.Events', 'U') IS NULL 
+BEGIN
+    CREATE TABLE dbo.Events
+    (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Title NVARCHAR(200) NOT NULL,
+        Date DATE NOT NULL,
+        STime NVARCHAR(20) NOT NULL,
+        ETime NVARCHAR(20) NOT NULL,
+        Location NVARCHAR(250) NOT NULL,
+        Description NVARCHAR(2000) NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETDATE()
+    )
+END";
+
                 new SqlCommand(ensureAnnouncements, conn).ExecuteNonQuery();
                 new SqlCommand(ensureResources, conn).ExecuteNonQuery();
+                new SqlCommand(ensureEvents, conn).ExecuteNonQuery();
             }
         }
 
@@ -268,6 +315,26 @@ FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
                             Description = reader["Description"].ToString(),
                             FileName = reader["FileName"].ToString(),
                             MediaType = reader["MediaType"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+
+                string eventsQuery = "SELECT Id, Title, Date, STime, ETime, Location, Description, CreatedAt FROM dbo.Events ORDER BY Date DESC, STime DESC";
+                using (SqlCommand cmd = new SqlCommand(eventsQuery, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.Events.Add(new EventViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Date = Convert.ToDateTime(reader["Date"]),
+                            STime = reader["STime"] != DBNull.Value ? reader["STime"].ToString() : string.Empty,
+                            ETime = reader["ETime"] != DBNull.Value ? reader["ETime"].ToString() : string.Empty,
+                            Location = reader["Location"].ToString(),
+                            Description = reader["Description"].ToString(),
                             CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
                         });
                     }
@@ -395,13 +462,414 @@ FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
             return RedirectToAction("AdminDashboard");
         }
 
-        public ActionResult ResourceFile(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkContactReplied(int id)
         {
             if (!IsAdminUser())
             {
                 return RedirectToAction("Signin");
             }
 
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string updateQuery = "UPDATE dbo.ContactMessages SET Status = 'Replied' WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddEvent(EventInputModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Please fill in all required event fields.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            EnsureAdminTables();
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string insertQuery = @"INSERT INTO dbo.Events (Title, Date, STime, ETime, Location, Description, CreatedAt)
+                                       VALUES (@Title, @Date, @STime, @ETime, @Location, @Description, GETDATE())";
+                SqlCommand cmd = new SqlCommand(insertQuery, conn);
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@Date", model.Date);
+                cmd.Parameters.AddWithValue("@STime", string.IsNullOrWhiteSpace(model.STime) ? (object)DBNull.Value : model.STime);
+                cmd.Parameters.AddWithValue("@ETime", string.IsNullOrWhiteSpace(model.ETime) ? (object)DBNull.Value : model.ETime);
+                cmd.Parameters.AddWithValue("@Location", model.Location ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Description", model.Description ?? string.Empty);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Event added successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        public ActionResult EditEvent(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            EnsureAdminTables();
+            EventEditModel model = null;
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT Id, Title, Date, STime, ETime, Location, Description FROM dbo.Events WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        model = new EventEditModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Date = Convert.ToDateTime(reader["Date"]),
+                            STime = reader["STime"] != DBNull.Value ? reader["STime"].ToString() : string.Empty,
+                            ETime = reader["ETime"] != DBNull.Value ? reader["ETime"].ToString() : string.Empty,
+                            Location = reader["Location"].ToString(),
+                            Description = reader["Description"].ToString()
+                        };
+                    }
+                }
+            }
+
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "Event not found.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateEvent(EventEditModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("EditEvent", model);
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string updateQuery = @"UPDATE dbo.Events SET Title = @Title, Date = @Date, STime = @STime, ETime = @ETime, Location = @Location, Description = @Description WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@Date", model.Date);
+                cmd.Parameters.AddWithValue("@STime", string.IsNullOrWhiteSpace(model.STime) ? (object)DBNull.Value : model.STime);
+                cmd.Parameters.AddWithValue("@ETime", string.IsNullOrWhiteSpace(model.ETime) ? (object)DBNull.Value : model.ETime);
+                cmd.Parameters.AddWithValue("@Location", model.Location ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Description", model.Description ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Id", model.Id);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Event updated successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteEvent(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string deleteQuery = "DELETE FROM dbo.Events WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(deleteQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Event deleted successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        public ActionResult Announcements()
+        {
+            EnsureAdminTables();
+            var announcements = new List<AnnouncementViewModel>();
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT Id, Title, Content, CreatedAt FROM dbo.Announcements ORDER BY CreatedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        announcements.Add(new AnnouncementViewModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Content = reader["Content"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+            }
+
+            return View(announcements);
+        }
+
+        public ActionResult Resources()
+        {
+            EnsureAdminTables();
+            var resources = new List<ResourceViewModel>();
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT Id, Title, Description, FileName, MediaType, CreatedAt FROM dbo.Resources ORDER BY CreatedAt DESC";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        resources.Add(new ResourceViewModel
+                        {
+Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Description = reader["Description"].ToString(),
+                            FileName = reader["FileName"].ToString(),
+                            MediaType = reader["MediaType"].ToString(),
+                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+            }
+
+            return View(resources);
+        }
+
+        public ActionResult EditAnnouncement(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            EnsureAdminTables();
+            AnnouncementEditModel model = null;
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT Id, Title, Content FROM dbo.Announcements WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        model = new AnnouncementEditModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Content = reader["Content"].ToString()
+                        };
+                    }
+                }
+            }
+
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "Announcement not found.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateAnnouncement(AnnouncementEditModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("EditAnnouncement", model);
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string updateQuery = "UPDATE dbo.Announcements SET Title = @Title, Content = @Content WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@Title", model.Title);
+                cmd.Parameters.AddWithValue("@Content", model.Content);
+                cmd.Parameters.AddWithValue("@Id", model.Id);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Announcement updated successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteAnnouncement(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string deleteQuery = "DELETE FROM dbo.Announcements WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(deleteQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Announcement deleted successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        public ActionResult EditResource(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            EnsureAdminTables();
+            ResourceEditModel model = null;
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string query = "SELECT Id, Title, Description FROM dbo.Resources WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        model = new ResourceEditModel
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Title = reader["Title"].ToString(),
+                            Description = reader["Description"].ToString()
+                        };
+                    }
+                }
+            }
+
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "Resource not found.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateResource(ResourceEditModel model)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("EditResource", model);
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                if (model.File != null && model.File.ContentLength > 0)
+                {
+                    using (var memoryStream = new System.IO.MemoryStream())
+                    {
+                        model.File.InputStream.CopyTo(memoryStream);
+                        string updateQuery = @"UPDATE dbo.Resources SET Title = @Title, Description = @Description, FileName = @FileName, MediaType = @MediaType, MediaData = @MediaData WHERE Id = @Id";
+                        SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                        cmd.Parameters.AddWithValue("@Title", model.Title);
+                        cmd.Parameters.AddWithValue("@Description", model.Description ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@FileName", System.IO.Path.GetFileName(model.File.FileName));
+                        cmd.Parameters.AddWithValue("@MediaType", model.File.ContentType);
+                        cmd.Parameters.AddWithValue("@MediaData", memoryStream.ToArray());
+                        cmd.Parameters.AddWithValue("@Id", model.Id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    string updateQuery = @"UPDATE dbo.Resources SET Title = @Title, Description = @Description WHERE Id = @Id";
+                    SqlCommand cmd = new SqlCommand(updateQuery, conn);
+                    cmd.Parameters.AddWithValue("@Title", model.Title);
+                    cmd.Parameters.AddWithValue("@Description", model.Description ?? string.Empty);
+                    cmd.Parameters.AddWithValue("@Id", model.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            TempData["SuccessMessage"] = "Resource updated successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteResource(int id)
+        {
+            if (!IsAdminUser())
+            {
+                return RedirectToAction("Signin");
+            }
+
+            using (SqlConnection conn = DbHelper.GetConnection())
+            {
+                conn.Open();
+                string deleteQuery = "DELETE FROM dbo.Resources WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(deleteQuery, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["SuccessMessage"] = "Resource deleted successfully.";
+            return RedirectToAction("AdminDashboard");
+        }
+
+        public ActionResult ResourceFile(int id)
+        {
             using (SqlConnection conn = DbHelper.GetConnection())
             {
                 conn.Open();
@@ -657,7 +1125,7 @@ FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
 
                         // Set success message and redirect
                         TempData["SuccessMessage"] = "Thank you for contacting us! We've received your message and will get back to you soon.";
-                        return RedirectToAction("Index");
+                        return RedirectToAction("Contact");
                     }
                 }
                 catch (Exception ex)

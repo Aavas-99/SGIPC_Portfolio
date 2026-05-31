@@ -10,11 +10,19 @@ namespace SGIPC.Models
 {
     public class DbHelper
     {
-        private static string _conn =
-            ConfigurationManager.ConnectionStrings["SGIPCDb"].ConnectionString;
+        private static string _conn;
 
         public static SqlConnection GetConnection()
         {
+            if (_conn == null)
+            {
+                var connString = ConfigurationManager.ConnectionStrings["SGIPCDb"];
+                if (connString == null)
+                {
+                    throw new ConfigurationErrorsException("Connection string 'SGIPCDb' not found in web.config");
+                }
+                _conn = connString.ConnectionString;
+            }
             return new SqlConnection(_conn);
         }
     }

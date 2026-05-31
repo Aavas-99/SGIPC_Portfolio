@@ -283,6 +283,14 @@ footer {
     border-radius: 10px;
     margin-bottom: 18px;
     font-size: 14px;
+    text-align: center;
+}
+
+/* Ensure validation text is visible */
+.error-message .err,
+.error-message * {
+    color: #f87171 !important;
+    opacity: 1 !important;
 }
 
 @keyframes fadeUp {

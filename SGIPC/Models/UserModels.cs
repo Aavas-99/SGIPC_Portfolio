@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.ComponentModel.DataAnnotations;
 
 namespace SGIPC.Models
 {
@@ -23,7 +21,9 @@ namespace SGIPC.Models
 
     public class SignInViewModel
     {
+        [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }
+        [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
         public bool RememberMe { get; set; }
         public bool IsAdmin { get; set; }
