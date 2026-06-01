@@ -29,10 +29,10 @@
             </div>
             <div class="field">
                 <label>Replace File (optional)</label>
-                <input type="file" name="File" accept="image/*,video/*" />
+                <input type="file" name="File" accept="image/*,video/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </div>
             <button type="submit" class="btn">Update Resource</button>
-            <a class="btn secondary" href="@Url.Action("AdminDashboard", "Portfolio")">Cancel</a>
+            <button type="button" class="btn" onclick="window.location='@Url.Action("AdminDashboard", "Portfolio")'">Cancel</button>
         }
     </div>
 </section>

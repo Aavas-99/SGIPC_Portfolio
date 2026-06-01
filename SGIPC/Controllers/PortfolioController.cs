@@ -3,6 +3,8 @@ using SGIPC.Models;
 using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using System.Web.Security;
 using System.Web.Mvc.Filters;
 
@@ -427,7 +429,13 @@ FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
 
             if (model.File == null || model.File.ContentLength == 0)
             {
-                TempData["ErrorMessage"] = "Please upload an image or video resource file.";
+                TempData["ErrorMessage"] = "Please upload an image, video, PDF, or Word document.";
+                return RedirectToAction("AdminDashboard");
+            }
+
+            if (!IsAllowedResourceFile(model.File))
+            {
+                TempData["ErrorMessage"] = "Please upload an image, video, PDF, or Word document.";
                 return RedirectToAction("AdminDashboard");
             }
 
@@ -460,6 +468,56 @@ FROM dbo.ApplicationForm ORDER BY SubmittedAt DESC";
 
             TempData["SuccessMessage"] = "Resource uploaded successfully.";
             return RedirectToAction("AdminDashboard");
+        }
+
+        private bool IsAllowedResourceFile(HttpPostedFileBase file)
+        {
+            if (file == null || file.ContentLength == 0)
+            {
+                return false;
+            }
+
+            string[] allowedContentTypes = new[]
+            {
+                "image/jpeg",
+                "image/png",
+                "image/gif",
+                "image/bmp",
+                "image/webp",
+                "image/svg+xml",
+                "video/mp4",
+                "video/webm",
+                "video/ogg",
+                "video/quicktime",
+                "video/x-msvideo",
+                "video/x-ms-wmv",
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            };
+
+            string[] allowedExtensions = new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".bmp",
+                ".webp",
+                ".svg",
+                ".mp4",
+                ".webm",
+                ".ogg",
+                ".mov",
+                ".avi",
+                ".wmv",
+                ".pdf",
+                ".doc",
+                ".docx"
+            };
+
+            var extension = System.IO.Path.GetExtension(file.FileName)?.ToLowerInvariant();
+            return allowedContentTypes.Contains(file.ContentType) || allowedExtensions.Contains(extension);
         }
 
         [HttpPost]
@@ -817,6 +875,12 @@ Id = Convert.ToInt32(reader["Id"]),
                 conn.Open();
                 if (model.File != null && model.File.ContentLength > 0)
                 {
+                    if (!IsAllowedResourceFile(model.File))
+                    {
+                        TempData["ErrorMessage"] = "Please upload an image, video, PDF, or Word document.";
+                        return View("EditResource", model);
+                    }
+
                     using (var memoryStream = new System.IO.MemoryStream())
                     {
                         model.File.InputStream.CopyTo(memoryStream);

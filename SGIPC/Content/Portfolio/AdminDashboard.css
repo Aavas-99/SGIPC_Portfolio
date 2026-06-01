@@ -304,7 +304,8 @@ tbody tr:hover {
 
 /* Inline form wrapper so buttons sit side by side */
 .inline-form {
-    display: inline;
+    display: inline-flex;
+    align-items: center;
 }
 
 /* Action groups inside table cells or cards */
@@ -313,9 +314,29 @@ tbody tr:hover {
     display: inline-flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 10px;
     align-items: center;
 }
+
+/* ensure buttons inside action groups are vertically centered and same height */
+.resource-actions > .btn,
+.resource-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    padding: 8px 16px;
+    min-height: 36px;
+    line-height: 1;
+}
+
+/* remove stray margins on buttons/forms */
+.resource-actions .inline-form,
+.resource-actions form {
+    margin: 0;
+    padding: 0;
+}
+
 
 /* ---------- Tag ---------- */
 .tag.replied {

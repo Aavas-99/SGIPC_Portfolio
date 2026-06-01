@@ -403,8 +403,8 @@
                         <textarea name="Description" rows="3"></textarea>
                     </div>
                     <div class="field">
-                        <label>Image or Video</label>
-                        <input type="file" name="File" accept="image/*,video/*" required />
+                        <label>Resource File (Max: 50 MB)</label>
+                        <input type="file" name="File" accept="image/*,video/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
                     </div>
                     <button type="submit" class="btn">Upload Resource</button>
                 </form>
@@ -437,21 +437,30 @@
                                 }
                                 else
                                 {
-                                    <a class="btn secondary" href='@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })'>Download</a>
+                                    <!-- combined action buttons: Download, Edit, Delete -->
+                                    <div class="resource-actions">
+                                        <a class="btn small secondary" href='@Url.Action("ResourceFile", "Portfolio", new { id = resource.Id })' title="Download @resource.FileName">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                style="margin-right:6px; vertical-align:middle;">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                                <polyline points="8 12 12 16 16 12"/>
+                                            </svg>
+                                            Download
+                                        </a>
+
+                                        <a class="btn small secondary" href='@Url.Action("EditResource", "Portfolio", new { id = resource.Id })'>Edit</a>
+
+                                        @using (Html.BeginForm("DeleteResource", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", resource.Id)
+                                            <button type="submit" class="btn small reject">Delete</button>
+                                        }
+                                    </div>
                                 }
-
-                                <div class="resource-actions">
-                                    <a class="btn small secondary" href='@Url.Action("EditResource", "Portfolio", new { id = resource.Id })'>Edit</a>
-                                </div>
-
-                                <div class="resource-actions">
-                                    @using (Html.BeginForm("DeleteResource", "Portfolio", FormMethod.Post, new { @class = "inline-form" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        @Html.Hidden("id", resource.Id)
-                                        <button type="submit" class="btn small reject">Delete</button>
-                                    }
-                                </div>
                             </div>
                         }
                     }

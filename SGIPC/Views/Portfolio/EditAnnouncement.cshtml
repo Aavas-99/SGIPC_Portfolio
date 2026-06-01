@@ -28,7 +28,7 @@
                 @Html.TextAreaFor(m => m.Content, 5, 80, new { @class = "input-field", required = "required" })
             </div>
             <button type="submit" class="btn">Save Announcement</button>
-            <a class="btn secondary" href="@Url.Action("AdminDashboard", "Portfolio")">Cancel</a>
+            <button type="button" class="btn" onclick="window.location='@Url.Action("AdminDashboard", "Portfolio")'">Cancel</button>
         }
     </div>
 </section>
