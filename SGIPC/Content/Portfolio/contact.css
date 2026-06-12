@@ -52,7 +52,7 @@ body {
         z-index: 0;
     }
 
-/* ─── HEADER / NAV ─────────────────────────────────────────── */
+/*  HEADER / NAV  */
 header,
 .site-header,
 nav.navbar,
@@ -80,7 +80,7 @@ nav.navbar,
     font-weight: 700;
 }
 
-/* ─── MAIN ──────────────────────────────────────────────────── */
+/* MAIN */
 main {
     position: relative;
     z-index: 1;
@@ -117,7 +117,7 @@ main {
     }
 }
 
-/* ─── LEFT: Info ────────────────────────────────────────────── */
+/* LEFT: Info */
 .contact-info {
     display: flex;
     flex-direction: column;
@@ -188,7 +188,7 @@ main {
     line-height: 1.6;
 }
 
-/* ─── RIGHT: Form ───────────────────────────────────────────── */
+/* RIGHT: Form */
 .contact-form-wrapper {
     background: rgba(30, 41, 59, 0.75);
     border: 1px solid var(--border);
@@ -271,10 +271,10 @@ label {
     margin-top: 6px;
 }
 
-/* ─── VALIDATION ─────────────────────────────────────────────
+/*  VALIDATION 
    CRITICAL: Hide empty validation spans on page load.
    Only show them when they actually contain error text.
-────────────────────────────────────────────────────────────── */
+*/
 .err-msg,
 .field-validation-valid,
 span[data-valmsg-for] {
@@ -357,7 +357,7 @@ textarea.input-validation-error {
             font-weight: 700;
         }
 
-/* ─── BUTTONS ───────────────────────────────────────────────── */
+/*  BUTTONS  */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -401,7 +401,7 @@ textarea.input-validation-error {
         opacity: 0.6;
     }
 
-/* ─── FOOTER ────────────────────────────────────────────────── */
+/* FOOTER  */
 footer,
 .site-footer {
     position: relative;
@@ -434,7 +434,7 @@ footer,
         opacity: 0.4;
     }
 
-/* ─── SUCCESS MODAL ─────────────────────────────────────────── */
+/* SUCCESS MODAL */
 .success-modal {
     position: fixed;
     top: 0;
@@ -549,7 +549,7 @@ footer,
 
 
 
-/* ─── RESPONSIVE ────────────────────────────────────────────── */
+/* RESPONSIVE */
 @media (max-width: 900px) {
 
     .contact-container {

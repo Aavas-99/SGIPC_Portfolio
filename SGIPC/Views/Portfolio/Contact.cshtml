@@ -35,6 +35,8 @@
         <a href='@Url.Action("Index", "Portfolio")#about'>About</a>
         <a href='@Url.Action("Committee", "Portfolio")'>Committee</a>
         <a href='@Url.Action("Index", "Portfolio")#events'>Events</a>
+        <a href='@Url.Action("Announcements", "Portfolio")'>Announcements</a>
+        <a href='@Url.Action("Resources", "Portfolio")'>Resources</a>
         <a href='@Url.Action("Index", "Portfolio")#achievements'>Achievements</a>
         <a href='@Url.Action("Index", "Portfolio")#join'>Join</a>
         <a href='@Url.Action("Index", "Portfolio")#contact'>Contact</a>
@@ -284,19 +286,9 @@
 
 <script src='@Url.Content("~/Scripts/Portfolio/contact.js")'></script>
 
-<!-- @if (TempData["SuccessMessage"] != null)
-{
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("successModal").style.display = "flex";
-        });
-    </script>
-} -->
-
 @if (TempData["SuccessMessage"] != null)
 {
     <script>
-        alert('TempData is working');
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("successModal").style.display = "flex";
         });

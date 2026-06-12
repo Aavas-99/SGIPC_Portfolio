@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearEl.textContent = new Date().getFullYear();
     }
 
-    // ============ ACHIEVEMENTS CAROUSEL ============
+    // ACHIEVEMENTS CAROUSEL
     // Get elements
     var achTrack = document.getElementById('achTrack');
     var achDotsEl = document.getElementById('achDots');
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Carousel elements not found');
     }
 
-    // ============ COMMITTEE CAROUSEL ============
+    // COMMITTEE CAROUSEL 
     var track = document.getElementById('track');
     var dotsEl = document.getElementById('dots');
     var nextBtn = document.getElementById('next');
@@ -249,6 +249,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         typeHero();
+    }
+    // SCROLL ANIMATIONS 
+    var fadeEls = document.querySelectorAll('.fade-up');
+
+    if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // animate once
+                }
+            });
+        }, { threshold: 0.15 });
+
+        fadeEls.forEach(function(el) {
+            observer.observe(el);
+        });
+    } else {
+        fadeEls.forEach(function(el) {
+            el.classList.add('visible');
+        });
     }
 
 });
